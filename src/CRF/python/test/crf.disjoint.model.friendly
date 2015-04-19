@@ -1,0 +1,49 @@
+FILEHEADER = {
+  magic: lCRF
+  size: 4832
+  type: FOMC
+  version: 100
+  num_features: 0
+  num_labels: 2
+  num_attrs: 5
+  off_features: 0x30
+  off_labels: 0x12C
+  off_attrs: 0x98E
+  off_labelrefs: 0x1258
+  off_attrrefs: 0x1284
+}
+
+LABELS = {
+      0: Walking
+      1: Sedentary
+}
+
+ATTRIBUTES = {
+      0: no_of_pauses
+      1: lat
+      2:  snrUsed
+      3:  duration
+      4: 
+
+}
+
+TRANSITIONS = {
+  (1) Walking --> Walking: 0.000017
+  (1) Sedentary --> Sedentary: 0.000032
+}
+
+STATE_FEATURES = {
+  (0) no_of_pauses --> Walking: -0.000037
+  (0) no_of_pauses --> Sedentary: 0.000037
+  (0) lat --> Walking: -0.000368
+  (0) lat --> Sedentary: 0.000368
+  (0)  snrUsed --> Walking: -0.000004
+  (0)  snrUsed --> Sedentary: 0.000004
+  (0)  duration --> Walking: -0.000168
+  (0)  duration --> Sedentary: 0.000168
+  (0) 
+ --> Walking: -0.000011
+  (0) 
+ --> Sedentary: 0.000011
+}
+
