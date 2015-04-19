@@ -1,0 +1,50 @@
+START
+Walking	no_of_pauses=5	dummy=2011-07-15 06:36:45.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:37:00.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:37:15.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:37:30.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:37:45.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:38:00.0	
+END
+START
+Walking	no_of_pauses=5	dummy=2011-07-15 06:37:45.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:38:00.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:38:15.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:38:30.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:38:45.0	
+Walking	no_of_pauses=5	dummy=2011-07-15 06:39:00.0	
+END
+START
+Walking	no_of_pauses=1	dummy=2011-07-15 06:38:45.0	
+Walking	no_of_pauses=1	dummy=2011-07-15 06:39:00.0	
+END
+START
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:54:00.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:54:15.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:54:30.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:54:45.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:00.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:15.0	
+END
+START
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:00.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:15.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:30.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:55:45.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:56:00.0	
+Sedentary	no_of_pauses=5	dummy=2011-07-15 06:56:15.0	
+END
+START
+Sedentary	no_of_pauses=1	dummy=2011-07-15 06:56:00.0	
+Sedentary	no_of_pauses=1	dummy=2011-07-15 06:56:15.0	
+END
+START
+Sedentary	no_of_pauses=4	dummy=2011-07-15 06:56:45.0	
+Sedentary	no_of_pauses=4	dummy=2011-07-15 06:57:00.0	
+Sedentary	no_of_pauses=4	dummy=2011-07-15 06:57:15.0	
+Sedentary	no_of_pauses=4	dummy=2011-07-15 06:57:30.0	
+Sedentary	no_of_pauses=4	dummy=2011-07-15 06:57:45.0	
+END
+START
+Sedentary	no_of_pauses=0	dummy=2011-07-15 06:57:45.0	
+END
