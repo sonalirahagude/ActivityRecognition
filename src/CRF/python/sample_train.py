@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+author : Sonali Rahagude (srahagud@eng.ucsd.edu)
+Script to train CRF, accepts input file which is complaint to CRFSuite requirements
+"""
 
 import crfsuite
 import sys
@@ -10,49 +14,12 @@ class Trainer(crfsuite.Trainer):
         # Simply output the progress messages to STDOUT.
         sys.stdout.write(s)
 
-def instances(fi):
-    xseq = crfsuite.ItemSequence()
-    yseq = crfsuite.StringList()
-    
-    for line in fi:
-        line = line.strip('\n')
-        if not line:
-        	# An empty line presents an end of a sequence.
-            yield xseq, tuple(yseq)
-            xseq = crfsuite.ItemSequence()
-            yseq = crfsuite.StringList()
-            continue
-
-		# Split the line with TAB characters.
-        fields = line.split('\t')
-    	
-    	# Append attributes to the item.
-        item = crfsuite.Item()
-        for field in fields[1:]:
-            p = field.rfind(':')
-            if p == -1:
-            	# Unweighted (weight=1) attribute.
-                item.append(crfsuite.Attribute(field))
-            else:
-            	# Weighted attribute
-                item.append(crfsuite.Attribute(field[:p], float(field[p+1:])))
-        
-        # Append the item to the item sequence.
-        xseq.append(item)
-        # Append the label to the label sequence.
-        yseq.append(fields[0])
-
-
-def read_file_to_crfsuite(crf_input_file, crf_trainer):
-    """
-    Convert an item sequence into an object compatible with crfsuite
-    Python module.
-
-    @type   X:      list of mapping objects
-    @param  X:      The sequence.
-    @rtype          crfsuite.ItemSequence
-    @return        The same sequence in crfsuite.ItemSequence type.
-    """
+"""
+Convert the file into an object compatible with crfsuite Python module.
+Every line in the crf input file consists of features for a particular token in the CRF sequence and every sequence is contained with a START-END pair
+<token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
+"""
+def read_file_to_crfsuite(crf_input_file, crf_trainer):    
     import crfsuite
     f = open(crf_input_file, 'r')
     xseq = crfsuite.ItemSequence()

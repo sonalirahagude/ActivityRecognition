@@ -1,5 +1,5 @@
 # author : Sonali Rahagude (srahagud@eng.ucsd.edu)
-# Description: This module processes the raw files for features and labels and aligns them to the window size 
+# Description: This module processes the raw files for features and labels:  places consecutive readings at window size distance and aligns them to the day stat.
 
 
 align_features = function(inputFile, outputDir, winSize= 15) {
@@ -9,11 +9,9 @@ align_labels = function(inputDir, outputDir, winSize =15, names = NULL) {
 	extract_labels_dir(inputDir,outputDir, winSize)
 }
 
-
+# splits annotation files in a directory by days, lines in the output file are separated by window size distance in time and are aligned to the day start.
+# column names should be identifier,StartDateTime,EndDateTime,PA1 (posture labels)  
 extract_labels_dir = function(inputDir, outputDir, winSize, names = NULL) {
-  # splits annotation files in a directory by days
-  # column names should be identifier,StartDateTime,EndDateTime,PA1 (posture labels)
-  
   files = list.files(inputDir)
 
   for (i in 1:length(files)) {
@@ -86,6 +84,8 @@ extract_labels_dir = function(inputDir, outputDir, winSize, names = NULL) {
   }
 }
 
+
+# Returns the date format of the date string passed 
 get_date_format = function(input_string) {
   dF1 = "%Y-%m-%d %H:%M:%S"
   dF2 = "%m/%d/%Y %H:%M:%S"
@@ -98,7 +98,7 @@ get_date_format = function(input_string) {
   return(NULL)
 }
 
-# returns a start time that is aligned to the start of the day, i.e. 00:00:00 with respect to the window size.
+# Returns a start time that is aligned to the start of the day, i.e. 00:00:00 with respect to the window size.
 # so the function will return start times that are multiples of window size.
 align_start = function(win_size, start) {
   d0 = trunc(start, "days")

@@ -33,18 +33,6 @@ no_of_pauses = function(seq, position, labels, options = NULL) {
   return(0)
 }
 
-#dummy function for debugging
-dummy = function(seq, position, labels, options = NULL) {
-    attribute_name = "dateTime"
-    feature_tuple = paste0("dummy:", toString (seq[position, attribute_name]))
-    return(feature_tuple)
-}
-
-
-# add functions that are indicator functions for the labels passed
-# these will be templates
-# they need to be aware of the label set of the application
-
 # add functions that simply return value of the interested attribute without any processing, can read from a list
 plain_features = function(seq, position, labels, options = NULL) {
     plain_features_file = options[['plain_features_list']]
@@ -71,3 +59,6 @@ plain_features = function(seq, position, labels, options = NULL) {
     return (feature_tuple)
 }
 
+# add functions that are indicator functions for the labels passed
+# these will be templates
+# they need to be aware of the label set of the application
