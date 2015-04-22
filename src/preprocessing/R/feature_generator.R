@@ -4,11 +4,13 @@
 # feature generator for the CRF. 
 # every line in the output file consists of features for a particular token in the CRF sequence and every sequence is contained with a START-END pair
 # <token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
-generate_features= function( feature_list_file, output_file, options, sequence, labels) {
+generate_features= function( feature_list_file, output_file, options, sequence) {
 	#feature_functions = read.csv(file.path(feature_list_file), stringsAsFactors=FALSE)	
 	conn = file(feature_list_file,open = 'r')
 	feature_functions = readLines(conn)	
 	output_file  = file.path(output_file)
+	labels = as.vector(sequence$behavior)
+
 	# mark start of a new sequence in the output file
 	cat('START\n', file=output_file, append=TRUE)
 	for(i in 1:nrow(sequence)) {
@@ -37,7 +39,7 @@ generate_features= function( feature_list_file, output_file, options, sequence, 
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
 generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_list_file, plain_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
 	if(!file.exists(feature_dir)) {
-		stop("Feature directory not found")
+		stop("Feature directory not found: " , feature_dir)
 	}
 
 	if(!file.exists(label_dir)) {
@@ -70,15 +72,20 @@ generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_lis
 		labels = read_from_file(label_dir)
 	}
 
+	
+	date_format = get_date_format(plain_features[1, ]$dateTime)
+	# first fomat the labels timestamp in the same format as features so that we can merge on the timestamp
+	labels$timestamp = strptime(labels$timestamp, date_format)
+	plain_features$dateTime = strptime(plain_features$dateTime, date_format)
+	
+	plain_features = merge (plain_features, labels,  by.x="dateTime", by.y="timestamp", all=FALSE, sort=FALSE)
 	# discard training points for whom the corresponding labels are unavailable
-	labels = labels$behavior
-	plain_features = plain_features[labels!="NULL", ]
-	labels = labels[labels!="NULL"]
-
+	plain_features = plain_features[plain_features$behavior!="NULL", ]
+	
 	# The below logic detects if 2 consecutive data points are non contiguous in time,
 	# if so, it starts a new CRF sequence for the later data point, with no overlap.
 	i = 1
-	date_format = get_date_format(plain_features[1, ]$dateTime)
+	
 	while(i <= nrow(plain_features) ) {
 		max_seq_end = i + crf_sequence_length - 1
 		if(max_seq_end > nrow(plain_features)) {
@@ -93,7 +100,7 @@ generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_lis
 				break
 			}
 		}
-		sequence = generate_features(feature_list_file, output_feature_file, options, plain_features[i:seq_end,], as.vector(labels[i:seq_end]) )
+		sequence = generate_features(feature_list_file, output_feature_file, options, plain_features[i:seq_end,] )
 		# While incrementing i, if there was no cut off, then we can overlap the next sequence with tokens from the previous sequence,
 		# else we have to start a fresh new sequence with no overlap
 		if( seq_end == max_seq_end) {			
@@ -137,10 +144,8 @@ read_from_file = function (file) {
 }
 
 # Checks if two data points contiguous in the input file are contiguous in time too
-is_immediate_data_point = function (time_string_1, time_string_2, date_format, window_size) {
-	prev_timestamp = strptime(str_trim(time_string_1), date_format)
-	cur_timestamp = strptime(str_trim(time_string_2), date_format)
-	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs")) == window_size) {
+is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, window_size) {
+	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") )== window_size) {
 		return(TRUE)
 	} 
 	return(FALSE)
