@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+author : Sonali Rahagude (srahagud@eng.ucsd.edu)
+Script to train CRF, accepts input file which is complaint to CRFSuite requirements
+"""
 
 import crfsuite
 import sys
@@ -18,7 +22,7 @@ def read_file_to_crfsuite(crf_input_file, crf_tagger):
                 label = y_itr.next()
                 #print "prediction: " + prediction
                 #print "label: " + label
-                print prediction + ", " + label
+                print prediction.strip() + "," + label.strip()
             xseq = crfsuite.ItemSequence()
             yseq = crfsuite.StringList()
         else:
@@ -48,7 +52,7 @@ if __name__ == '__main__':
     # Load the model to the tagger.
     tagger.open(sys.argv[1])
 
-    print "Prediction, True Label"
+    print "Prediction,True Label"
     read_file_to_crfsuite(sys.argv[2],tagger)
     """
     for xseq in instances(fi):

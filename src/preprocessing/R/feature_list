@@ -1,2 +1,11 @@
+# List all the features that should be generated
+
+# Trajectory related features
 no_of_pauses
+
+
+
+# File to mention plain features
 plain_features
+
+

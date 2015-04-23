@@ -17,6 +17,10 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 		label = labels[i]
 		cat(label,'\t', sep="", file=output_file, append=TRUE)	
 		for(feature_function in feature_functions) {
+			# ignore comments in the feature list file
+			if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')
+				next
+			#cat("Calling " , feature_function,"\n")
 			feature_value = do.call(feature_function, list(sequence, i, labels, options))
 			# write the returned feature value to output file			
 			cat(feature_value, "\t", sep="", file=output_file, append=TRUE)		
@@ -37,9 +41,9 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 ## output_feature_file: file to write the CRF compliant features to
 ## crf_sequence_length: length of a CRF sequence
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
-generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_list_file, plain_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
-	if(!file.exists(feature_dir)) {
-		stop("Feature directory not found: " , feature_dir)
+generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, plain_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
+	if(!file.exists(feature_dirs)) {
+		stop("Feature directory not found: " , feature_dirs)
 	}
 
 	if(!file.exists(label_dir)) {
@@ -54,8 +58,13 @@ generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_lis
     }
 
 	options = list(plain_features_list = plain_features_file)	
-	if(file.info(feature_dir)$isdir) {
-		plain_features = read_from_dir(feature_dir)
+	if(file.info(feature_dirs)$isdir) {
+		plain_features = data.frame()
+		for(feature_dir in feature_dirs) { 
+			cat("Exracting features from: " , feature_dir, "\n")
+			#single_feature =  read_from_dir(feature_dir)
+			plain_features = rbind(plain_features, read_from_dir(feature_dir))
+		}
 	}
 	else {
 		plain_features = read_from_file(feature_dir)
@@ -72,13 +81,20 @@ generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_lis
 		labels = read_from_file(label_dir)
 	}
 
-	
-	date_format = get_date_format(plain_features[1, ]$dateTime)
+	#---------------------
+	#date_format = get_date_format(plain_features[1, ]$dateTime)
+	date_format = get_date_format(plain_features[1, ]$timestamp)
+	#---------------------
 	# first fomat the labels timestamp in the same format as features so that we can merge on the timestamp
 	labels$timestamp = strptime(labels$timestamp, date_format)
-	plain_features$dateTime = strptime(plain_features$dateTime, date_format)
+
+	#---------------------
+	#plain_features$dateTime = strptime(plain_features$dateTime, date_format)
+	#plain_features = merge (plain_features, labels,  by.x=c("participant","dateTime"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
 	
-	plain_features = merge (plain_features, labels,  by.x="dateTime", by.y="timestamp", all=FALSE, sort=FALSE)
+	plain_features$timestamp = strptime(plain_features$timestamp, date_format)
+	plain_features = merge (plain_features, labels,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
+	#---------------------
 	# discard training points for whom the corresponding labels are unavailable
 	plain_features = plain_features[plain_features$behavior!="NULL", ]
 	
@@ -94,7 +110,10 @@ generate_sequences_from_raw_data = function( feature_dir, label_dir, feature_lis
 
 		seq_end = i
 		while(seq_end < max_seq_end) {
-			if(is_immediate_data_point(plain_features[seq_end, ]$dateTime, plain_features[seq_end + 1, ]$dateTime, date_format, window_size) )  {
+			#---------------------
+			#if(is_immediate_data_point(plain_features[seq_end, ]$dateTime, plain_features[seq_end + 1, ]$dateTime, date_format, window_size) )  {
+			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, window_size) )  {
+			#---------------------
 				seq_end = seq_end + 1
 			} else {
 				break
@@ -120,6 +139,7 @@ read_from_dir = function(dir, names = NULL) {
 	}
 
 	if (length(names) == 0) {
+		cat("Could not find files in directory: " , dir,". Either the directory is empty or it does not exist.\n")
 		return(NULL)
 	}
 	all_feats = data.frame()
@@ -132,6 +152,8 @@ read_from_dir = function(dir, names = NULL) {
     	for (k in 1:length(days)) {
     		file = file.path(dir, names[i], days[k])
     		feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE)
+    		# add the participant name so that it can be used during merging
+    		feats[,'participant'] = rep(names[i], times = nrow(feats))
     		all_feats = rbind(all_feats, feats)
     	}
 	}

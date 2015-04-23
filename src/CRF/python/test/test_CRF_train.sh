@@ -6,15 +6,35 @@
 
 
 
-#python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU079 crf.SDU079.model
+
+#python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/crf_feature_SDU082 crf.SDU082.model
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU082.model > crf.SDU082.model.friendly
+
+#python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU082 crf.SDU082.speed_only.model
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU082.speed_only.model > crf.SDU082.model.speed_only.friendly
+
+
+#python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU082 crf.SDU082.speeed_ele.model
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU082.speeed_ele.model > crf.SDU082.speeed_ele.model.friendly
+
+
+#python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/crf_feature_SDU079 crf.SDU079.model
 #~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU079.model > crf.SDU079.model.friendly
 
-python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU082 crf.SDU082.model
-~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU082.model > crf.SDU082.model.friendly
-
-
 #python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU079 crf.SDU079.speed_only.model
-#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU079.speed_only.model > crf.SDU079.speed_only.model.friendly
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU079.speed_only.model > crf.SDU079.model.speed_only.friendly
 
-#python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU082 crf.SDU082.speed_eleDelta.all_transitions.model
-#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU082.speed_eleDelta.all_transitions.model > crf.SDU082.speed_eleDelta.all_transitions.model.friendly
+#python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/crf_feature_SDU085 crf.SDU085.model
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU085.model > crf.SDU085.model.friendly
+
+#python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU085 crf.SDU085.speed_only.model
+#~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU085.speed_only.model > crf.SDU085.model.speed_only.friendly
+
+python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/crf_feature_all crf.all.model
+~/git/crfsuite-0.12/frontend/crfsuite dump crf.all.model > crf.all.model.friendly
+
+python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_all crf.all.speed_only.model
+~/git/crfsuite-0.12/frontend/crfsuite dump crf.all.speed_only.model > crf.all.speed_only.model.friendly
+
+
+

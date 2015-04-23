@@ -48,7 +48,6 @@ def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list):
                     attribute_val = float(attribute_tuple[p+1:])
                     
                     if(attribute_name in feature_inclusion_list):
-                        print "appended faeture: " + attribute_name
                         item.append(crfsuite.Attribute(attribute_name, attribute_val))
             xseq.append(item)
             #print xseq.items()
@@ -75,7 +74,6 @@ if __name__ == '__main__':
     print sys.argv[2]
     print sys.argv[3]
     feature_inclusion_list = get_feature_inclusion_list(sys.argv[1])
-    print feature_inclusion_list
     read_file_to_crfsuite(sys.argv[2], trainer, feature_inclusion_list)
     # Read training instances from STDIN, and set them to trainer.
     #for xseq, yseq in instances(crf_input_file):
@@ -84,8 +82,8 @@ if __name__ == '__main__':
 	# Use L2-regularized SGD and 1st-order dyad features.
     trainer.select('l2sgd', 'crf1d')    
     trainer.set('feature.minfreq','-100000')
-    trainer.set('feature.possible_states', '1')
-    trainer.set('feature.possible_transitions', '1')
+    #trainer.set('feature.possible_states', '1')
+    #trainer.set('feature.possible_transitions', '1')
     
     # This demonstrates how to list parameters and obtain their values.
     for name in trainer.params():

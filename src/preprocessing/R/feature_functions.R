@@ -45,6 +45,10 @@ plain_features = function(seq, position, labels, options = NULL) {
     plain_features = readLines(conn) 
     feature_tuple = ""
     for(plain_feature in plain_features) {
+        # ignore comments and blank lines in the plain feature list file
+        if (startsWith(plain_feature, '#', trim=TRUE) | trim(plain_feature) == '')
+            next
+        
         if(!(plain_feature %in% names(seq))) {
             cat("Did not find feature: ", plain_feature,"\nSkipping...")
             next
