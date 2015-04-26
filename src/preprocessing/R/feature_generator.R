@@ -10,9 +10,8 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 	feature_functions = readLines(conn)	
 	output_file  = file.path(output_file)
 	labels = as.vector(sequence$behavior)
-
 	# mark start of a new sequence in the output file
-	cat('START\n', file=output_file, append=TRUE)
+	cat('#START\n', file=output_file, append=TRUE)
 	for(i in 1:nrow(sequence)) {
 		label = labels[i]
 		cat(label,'\t', sep="", file=output_file, append=TRUE)	
@@ -28,9 +27,42 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 		cat('\n', file=output_file, append=TRUE)			
 	}
 	# mark end of a new sequence in the output file
-	cat('END\n', file=output_file, append=TRUE)
-	close(conn)
-	
+	cat('#END\n', file=output_file, append=TRUE)
+	close(conn)	
+}
+
+generate_header = function(plain_features_file, feature_list_file, output_feature_file) {
+	conn = file(feature_list_file,open = 'r')
+	feature_functions = readLines(conn)	
+	print(output_feature_file)
+	output_file = file.path(output_feature_file)
+	cat("label", "\t", sep="", file=output_feature_file, append=TRUE)		
+	for (feature_function in feature_functions) {
+		# ignore comments in the feature list file
+		if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')
+			next
+		if(feature_function == "plain_features") {
+			plain_features_list = get_plain_features(plain_features_file)
+			cat(plain_features_list, sep="", file=output_file, append=TRUE)		
+		}
+		else {
+			cat(feature_function, "\t", sep="", file=output_file, append=TRUE)	
+		}
+	}
+	cat('\n', file=output_file, append=TRUE)	
+}
+
+get_plain_features  = function(plain_features_file) {
+	conn = file(plain_features_file, open = 'r')
+    plain_features = readLines(conn) 
+   	plain_features_list = ""
+    for (plain_feature in plain_features) {
+    	# ignore comments in the feature list file
+		if (startsWith(plain_feature, '#', trim=TRUE) | trim(plain_feature) == '')
+			next
+    	plain_features_list = paste0(plain_features_list,plain_feature,"\t")
+	}
+	return (plain_features_list)
 }
 
 # Generates and writes CRF compliant features to a file
@@ -56,6 +88,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	if (file.exists( file.path(output_feature_file) )) {
       file.remove(output_feature_file)
     }
+	generate_header(plain_features_file, feature_list_file, output_feature_file) 
 
 	options = list(plain_features_list = plain_features_file)	
 	if(file.info(feature_dirs)$isdir) {
@@ -67,7 +100,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 		}
 	}
 	else {
-		plain_features = read_from_file(feature_dir)
+		plain_features = read_from_file(feature_dirs)
 	}
 	
 	if(file.info(label_dir)$isdir) {
@@ -93,7 +126,12 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	#plain_features = merge (plain_features, labels,  by.x=c("participant","dateTime"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
 	
 	plain_features$timestamp = strptime(plain_features$timestamp, date_format)
-	plain_features = merge (plain_features, labels,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
+	if("participant" %in% colnames(plain_features) & "participant" %in% colnames(labels) ) {
+		plain_features = merge (plain_features, labels,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
+	}
+	else {
+		plain_features = merge (plain_features, labels,  by.x=c("timestamp"), by.y=c("timestamp"), all=FALSE, sort=FALSE)	
+	}
 	#---------------------
 	# discard training points for whom the corresponding labels are unavailable
 	plain_features = plain_features[plain_features$behavior!="NULL", ]

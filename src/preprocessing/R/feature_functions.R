@@ -27,7 +27,8 @@ no_of_pauses = function(seq, position, labels, options = NULL) {
     		pauses = pauses + 1
     	}
     }
-    feature_tuple = paste0("no_of_pauses:",pauses)
+    #feature_tuple = paste0("no_of_pauses:",pauses)
+    feature_tuple = pauses
     return(feature_tuple)
   }
   return(0)
@@ -53,10 +54,15 @@ plain_features = function(seq, position, labels, options = NULL) {
             cat("Did not find feature: ", plain_feature,"\nSkipping...")
             next
         }
+        #if(feature_tuple == ""){
+        #    feature_tuple = paste0(plain_feature,":", seq[position,plain_feature])
+        #} else {
+        #    feature_tuple = paste0(feature_tuple, "\t ", plain_feature,":", seq[position,plain_feature])
+        #}
         if(feature_tuple == ""){
-            feature_tuple = paste0(plain_feature,":", seq[position,plain_feature])
+            feature_tuple = seq[position,plain_feature]
         } else {
-            feature_tuple = paste0(feature_tuple, "\t ", plain_feature,":", seq[position,plain_feature])
+            feature_tuple = paste0(feature_tuple, "\t ", seq[position,plain_feature])
         }
     }
     close(conn)
