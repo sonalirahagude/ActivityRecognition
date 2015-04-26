@@ -1,0 +1,4 @@
+src/preprocessing/R/data
+src/preprocessing/R/test/results
+src/CRF/python/test/results
+src/CRF/R/test/results

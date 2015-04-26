@@ -34,7 +34,7 @@ crf_train = function(crf_input_file, feature_inclusion_file, labels, crf_model_f
 	labels = append(labels, c("START","STOP"))
 	# Weights is a 3 dimensional matrix, 
 	weights_new = array(0,dim=c(length(labels), length(labels), length(features)),dimnames=(list(labels, labels, features)))
-
+	print("Starting CRF training")
 	for (i in 1:options["no_of_epochs"]) {
         #%randOrder = randperm(size(trainingLabels,1));
         #numYhatMatches =0;
@@ -52,8 +52,10 @@ crf_train = function(crf_input_file, feature_inclusion_file, labels, crf_model_f
             }
 
             #Calculate Viterbi Path and y_hat, uses anotherCOMPUTEG           
-            G = compute_g_matrices(x, weights_old, labels)
-            #print(G)            
+            # print(x)
+            # print(weights_old)
+            # print(labels)
+            G = compute_g_matrices(x, weights_old, labels)                      
             #If training method == 1 then do Collins Perceptron
             #if trainingMethod == 1
             #    yHat = Viterbi(G,sampleSize, tagSize);
@@ -129,7 +131,7 @@ get_training_data = function(crf_input_file, feature_inclusion_list) {
 		}
 		else {
 			feature_values = unlist(strsplit(trim(line), "\t"))
-			feature_values_filtered = feature_values[filtered_indices]
+			feature_values_filtered = feature_values[filtered_indices]			
 			x = rbind(x,as.numeric(feature_values_filtered))
 			y = append(y,feature_values[1])
 		}

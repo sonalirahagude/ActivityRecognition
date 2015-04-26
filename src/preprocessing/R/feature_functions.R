@@ -49,10 +49,10 @@ plain_features = function(seq, position, labels, options = NULL) {
         # ignore comments and blank lines in the plain feature list file
         if (startsWith(plain_feature, '#', trim=TRUE) | trim(plain_feature) == '')
             next
-        
+
         if(!(plain_feature %in% names(seq))) {
-            cat("Did not find feature: ", plain_feature,"\nSkipping...")
-            next
+            cat("Did not find feature: ", plain_feature,"\n")
+            stop("Did not find feature: ", plain_feature,"\nPlease check the input file")
         }
         #if(feature_tuple == ""){
         #    feature_tuple = paste0(plain_feature,":", seq[position,plain_feature])

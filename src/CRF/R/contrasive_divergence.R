@@ -29,7 +29,13 @@ contrasive_divergence = function(G, y, labels) {
             scaled = array(FALSE, dim=length(labels),dimnames=list(labels))
             #now, compute for every possible value of the tag at position i
             for (u in labels ) {
-                p[i,u] = exp(G[label_prev, u, i]) * exp(G[u, label_next, i+1])
+                # print(i)
+                # print(u)
+                # print(label_prev)
+                # print(label_next)
+                # print(G[label_prev, u, i])
+                # print(G[u, label_next, i+1])
+                p[i,u] = exp(G[label_prev, u, i]) * exp(G[u, label_next, i+1])                
                 if (p[i,u] > 10000) {
                     p[i,u] = p[i,u]/10000
                     scaled[u] = TRUE

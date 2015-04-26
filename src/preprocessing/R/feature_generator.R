@@ -5,7 +5,6 @@
 # every line in the output file consists of features for a particular token in the CRF sequence and every sequence is contained with a START-END pair
 # <token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
 generate_features= function( feature_list_file, output_file, options, sequence) {
-	#feature_functions = read.csv(file.path(feature_list_file), stringsAsFactors=FALSE)	
 	conn = file(feature_list_file,open = 'r')
 	feature_functions = readLines(conn)	
 	output_file  = file.path(output_file)
@@ -74,8 +73,10 @@ get_plain_features  = function(plain_features_file) {
 ## crf_sequence_length: length of a CRF sequence
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
 generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, plain_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
-	if(!file.exists(feature_dirs)) {
-		stop("Feature directory not found: " , feature_dirs)
+	for(feature_dir in feature_dirs) {
+		if(!file.exists(feature_dir)) {
+			stop("Feature directory not found: " , feature_dir)
+		}
 	}
 
 	if(!file.exists(label_dir)) {
@@ -91,16 +92,27 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	generate_header(plain_features_file, feature_list_file, output_feature_file) 
 
 	options = list(plain_features_list = plain_features_file)	
-	if(file.info(feature_dirs)$isdir) {
-		plain_features = data.frame()
-		for(feature_dir in feature_dirs) { 
+	plain_features = data.frame()
+	for(feature_dir in feature_dirs) { 
+		if(file.info(feature_dir)$isdir) {
 			cat("Exracting features from: " , feature_dir, "\n")
 			#single_feature =  read_from_dir(feature_dir)
-			plain_features = rbind(plain_features, read_from_dir(feature_dir))
+			features = read_from_dir(feature_dir)
 		}
-	}
-	else {
-		plain_features = read_from_file(feature_dirs)
+		else {
+			features = read_from_file(feature_dir)
+		}
+		if(nrow(plain_features) == 0) {
+			plain_features = features
+		}
+		else {
+			if("participant" %in% colnames(features) & "participant" %in% colnames(features) ) {
+				plain_features = merge (plain_features, features,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
+			}
+			else {
+				plain_features = merge (plain_features, features,  by.x=c("timestamp"), by.y=c("timestamp"), all=FALSE, sort=FALSE)	
+			}
+		}
 	}
 	
 	if(file.info(label_dir)$isdir) {
@@ -189,17 +201,18 @@ read_from_dir = function(dir, names = NULL) {
     	}
     	for (k in 1:length(days)) {
     		file = file.path(dir, names[i], days[k])
-    		feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE)
+    		# Set check.names=FALSE, else strings starting with numbers in the header will be read as 25thp -- X25thp
+    		feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
     		# add the participant name so that it can be used during merging
-    		feats[,'participant'] = rep(names[i], times = nrow(feats))
+    		feats[,'participant'] = rep(names[i], times = nrow(feats))    		
     		all_feats = rbind(all_feats, feats)
     	}
 	}
-return(all_feats)
+	return(all_feats)
 }
 
 read_from_file = function (file) {
-	feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE)
+	feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
 	return (feats)
 }
 
