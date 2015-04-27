@@ -26,6 +26,8 @@ compute_g_matrices = function(x,weights, labels) {
         #     label_cur = y[i]
         #     G[label_prev,label_cur,i] = compute_position_feature_values(x[i,],label_cur,label_prev,weights)
         # }
+        
+        # We need to calculate all the cells for the prediction part, so that all possible combinations are available while inferring the mostly likely sequence
         for(label_prev in labels) {
             for(label_cur in labels) {
                 if (i == crf_sequence_length) {
@@ -44,13 +46,10 @@ compute_g_matrices = function(x,weights, labels) {
     return (G)
 }
 
+# Compute the sum of all the feature functions for a particular position 'i' in the crf sequence
 compute_position_feature_values = function(token,label_cur,label_prev,weights) {
     total = 0.0
-    #print(dimnames(weights))
     for(feature in colnames(token)) {
-         # print (feature)
-         # print (label_prev)
-         # print (label_cur)
         total = total + weights[label_prev,label_cur,feature] * token[1,feature]
     }
     return(total)

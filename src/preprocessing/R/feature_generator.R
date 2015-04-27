@@ -66,13 +66,13 @@ get_plain_features  = function(plain_features_file) {
 
 # Generates and writes CRF compliant features to a file
 # Arguments:
-## @feature_file: contains the original features at window_size rate <feature1, feature2,...featuren, label>
+## feature_dirs: list of directories that contain the original/raw observation files at desired window_size rate 
 ## feature_list_file: contains list of names of feature functions to be used to generate features
-## plain_features_file: contains list of names of features to be directly included as a feature function
-## output_feature_file: file to write the CRF compliant features to
+## plain_features_file: contains list of names of raw observations to be directly included as a feature function
+## output_feature_file: file to write the CRF compliant features to, will contain the original features at window_size rate <feature1, feature2,...featuren, label>
 ## crf_sequence_length: length of a CRF sequence
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
-generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, plain_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
+generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, raw_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
 	for(feature_dir in feature_dirs) {
 		if(!file.exists(feature_dir)) {
 			stop("Feature directory not found: " , feature_dir)

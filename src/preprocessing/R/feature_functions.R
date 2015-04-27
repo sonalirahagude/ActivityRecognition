@@ -1,5 +1,6 @@
 # author : Sonali Rahagude (srahagud@eng.ucsd.edu)
-# Description: This module contains functions to generate different feature functions for the CRF model
+# Description: This module contains functions to generate different feature function templates for the CRF model. These will be written in form of sequences in a file. 
+#              The CRF trainer module will read this file and generate feature functions by appending indicator functions fot the output tokens. 
 
 # number of pauses
 # arguments = sequence dataframe
@@ -69,6 +70,5 @@ plain_features = function(seq, position, labels, options = NULL) {
     return (feature_tuple)
 }
 
-# add functions that are indicator functions for the labels passed
-# these will be templates
-# they need to be aware of the label set of the application
+# observation difference features
+

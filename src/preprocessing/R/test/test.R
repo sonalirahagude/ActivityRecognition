@@ -30,7 +30,10 @@ source('../setup.R')
 #generate_sequences_from_raw_data( "../data/GPS_SDU085.csv", "../data/AnnotatedFilesNew_aligned/SDU085/2011-07-09.csv","../feature_list", "../plain_features_list", "results/crf_feature_SDU085", crf_sequence_length= 10, overlap_window_length = 5, window_size = 15 )
 
 #train on all
-#generate_sequences_from_raw_data( c("../data/TREC_ML_Features_15","GT3X+Raw_Features_15"), "../data/AnnotatedFilesNew/","../feature_list", "../plain_features_list", "results/crf_feature_all", crf_sequence_length= 10, overlap_window_length = 5, window_size = 15 )
+generate_sequences_from_raw_data( c("../data/TREC_ML_Features_15","../data/GT3X+Raw_Features_15"), "../data/AnnotatedFilesNew/",
+	"../feature_list", "../plain_features_list", "results/crf_feature_all", crf_sequence_length= 10, overlap_window_length = 5, window_size = 15 )
 
 # test on SDU078
-generate_sequences_from_raw_data( c("../data/GPSTest","../data/AccTest"), "../data/AnnotatedFilesNewTest","../feature_list", "../plain_features_list", "results/crf_feature_SDU078", crf_sequence_length= 10, overlap_window_length = 5, window_size = 15 )
+#generate_sequences_from_raw_data( c("../data/GPSTest","../data/AccTest"), "../data/AnnotatedFilesNewTest","../feature_list", "../plain_features_list", "results/crf_feature_SDU078", crf_sequence_length= 10, overlap_window_length = 5, window_size = 15 )
+
+#

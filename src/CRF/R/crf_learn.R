@@ -34,23 +34,37 @@ update_features = function(x,y,weights_old,learning_rate,labels) {
 }
 
 normalize = function(weights) {
-	sum = 0.0
-	for (i in 1:dim(weights)[1]) {
-		for (j in 1:dim(weights)[2]) {
-			for (k in 1:dim(weights)[3]) {
-				sum = sum + weights[i,j,k]
-			}
-		}
-	}
-	for (i in 1:dim(weights)[1]) {
-		for (j in 1:dim(weights)[2]) {
-			for (k in 1:dim(weights)[3]) {
-				weights[i,j,k] = weights[i,j,k]/sum
-			}
-		}
-	}
-	return(weights)
+    max_w = max(weights)
+    min_w = min(weights)
+    diff = max_w - min_w
+    for (i in 1:dim(weights)[1]) {
+        for (j in 1:dim(weights)[2]) {
+            for (k in 1:dim(weights)[3]) {
+                weights[i,j,k] = (weights[i,j,k] - min_w)*1.0/diff
+            }
+        }
+    }  
+    return(weights)
 }
+
+# normalize = function(weights) {
+# 	sum = 0.0
+# 	for (i in 1:dim(weights)[1]) {
+# 		for (j in 1:dim(weights)[2]) {
+# 			for (k in 1:dim(weights)[3]) {
+# 				sum = sum + weights[i,j,k]
+# 			}
+# 		}
+# 	}
+# 	for (i in 1:dim(weights)[1]) {
+# 		for (j in 1:dim(weights)[2]) {
+# 			for (k in 1:dim(weights)[3]) {
+# 				weights[i,j,k] = weights[i,j,k]/sum
+# 			}
+# 		}
+# 	}
+# 	return(weights)
+# }
 
 compute_single_feature_across_sequence = function(x, feature) {
 	crf_sequence_length = nrow(x)	

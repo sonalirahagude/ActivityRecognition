@@ -1,13 +1,14 @@
 # Author : Sonali Rahagude (srahagud@eng.ucsd.edu)
-# Description: This module implements contrasive divergence technique to learn the CRF weights
+# Description: This module implements contrasive divergence technique to learn the CRF weights/
+#               It uses Gibbs sample with 4 number of rounds. 
 
 contrasive_divergence = function(G, y, labels) {
-    max_epoch_count = 4
+    rounds = 4
     crf_sequence_length = length(y)
     #select an initial value close to y, we start with the first position
     y_new = y
    
-    for (epoch in  1 : max_epoch_count) {
+    for (epoch in  1 : rounds) {
         for (i in 1 : crf_sequence_length) {
             if (i == crf_sequence_length) {
                 label_next = "STOP"
@@ -23,7 +24,6 @@ contrasive_divergence = function(G, y, labels) {
             }
             
             sum = 0;           
-            # cp will contain the cumulative sum of the probabilities
             no_of_labels = length(labels)
             p = array(0, dim=c(crf_sequence_length, no_of_labels), dimnames = list(1:crf_sequence_length,labels))
             scaled = array(FALSE, dim=length(labels),dimnames=list(labels))
@@ -42,7 +42,6 @@ contrasive_divergence = function(G, y, labels) {
                 }            
                 sum = sum + p[i,u]
             }
-            #for ()
 
             
             # choose a random number for sampling the data
@@ -60,8 +59,8 @@ contrasive_divergence = function(G, y, labels) {
                     p[i,u] = p[i,u]/sum               
                 }
                 csum = csum + p[i,u]
-                #If the rand_no falls within this range of buckets, choose the value u        
-                    if(rand_no < csum && u!='START' && u!= 'STOP') {
+                #If the rand_no falls within this range of buckets, choose the value u, ignore labels 'START' and 'STOP'
+                if(rand_no < csum && u!='START' && u!= 'STOP') {
                     y_new[i] = u
                     break
                 }                

@@ -1,5 +1,5 @@
 # Author : Sonali Rahagude (srahagud@eng.ucsd.edu)
-# Description: This module implements viterbi algorithm to infer the most likely label sequence
+# Description: This module implements viterbi algorithm to infer the most likely label sequence given the feature function weights and G matrix for a particular x
 
 #The G matrix's last dimension is the length of the sentence
 viterbi = function (G, x, labels)  {
