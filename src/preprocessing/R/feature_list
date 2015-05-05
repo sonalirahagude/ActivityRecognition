@@ -4,8 +4,9 @@
 no_of_pauses
 
 
-
 # File to mention plain features
 plain_features
 
 
+# Add differences from previous timesteps as features
+#difference_features

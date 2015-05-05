@@ -1,25 +1,52 @@
-print("test")
+## usage
+
 print(getwd())
 source('~/git/ActivityRecognition/src/CRF/R/setup.R')
 #get_feature_inclusion_list('../feature_list_all')
 
 #get_training_data('../../../preprocessing/R/test/crf_feature_SDU078_cut','../feature_list_all')
 
-options = c('no_of_epochs' = 20, 'learning_rate' = 0.1)
-#labels = c("Sedentary","StandingStill","StandingMoving","Walking","Biking","Vehicle")
-labels = c("StandingStill","Sedentary", "StandingMoving","Walking","Biking","Vehicle")
+options = c('no_of_epochs' = 100, 'learning_rate' = 1, 'gibbs_sampling_rounds' = 5, training_method="contrasive_divergence")
+  options = c('no_of_epochs' = 10, 'learning_rate' = 1, 'gibbs_sampling_rounds' = 5, training_method="forward_backward")
 
-#crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_SDU078_cut',feature_inclusion_file='../feature_list_all',labels=labels,crf_model_file = 'results/crf_SDU078_cut_model', options)
-#crf_tag(crt_test_file='../../../preprocessing/R/test/results/crf_feature_SDU078_cut', crf_model_file='crf_SDU078_cut_model', feature_inclusion_file ='../feature_list_all', output_prediction_file='crf_SDU078_cut_result', NULL) 
+labels = c("StandingMoving", "StandingStill","Sedentary","Walking","Biking","Vehicle")
+
+ # crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_SDU082',feature_list_file='../feature_list_all',
+ #   	labels=labels,crf_model_file = 'results/crf_SDU082_model_cd_100epochs_1LR_preprocess_scale_center', options)
+ #   crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU082', crf_model_file='results/crf_SDU082_model_cd_100epochs_1LR_preprocess_scale_center', 
+ #    	feature_list_file ='../feature_list_all', output_prediction_file='results/result_SDU082_train_SDU082_test_cd_100epochs_1LR_preprocess_scale_center', NULL) 
+  
+  crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_SDU082',feature_list_file='../feature_list_all',
+  	labels=labels,crf_model_file = 'results/crf_SDU082_model_fb_10epochs_1LR_preprocess_scale_center', options)
+
+  # crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU082', crf_model_file='results/crf_SDU082_model_fb_10epochs_1LR_preprocess_scale_center4', 
+  #    	feature_list_file ='../feature_list_all', output_prediction_file='results/result_SDU082_train_SDU082_test_fb_10epochs_1LR_preprocess_scale_center4', NULL) 
+
+  #options = c('no_of_epochs' = 20, 'learning_rate' = 0.05, 'gibbs_sampling_rounds' = 5, training_method="collins_perceptron")
+
+  # crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_SDU082',feature_list_file='../feature_list_all',
+  # 	labels=labels,crf_model_file = 'results/crf_SDU082_model_fb_20epochs_preprocess_scale_only', options)
+  #  crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU082', crf_model_file='results/crf_SDU082_model_fb_20epochs_preprocess_scale_only', 
+  #   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_SDU082_train_SDU082_test_fb_20epochs_preprocess_scale_only', NULL) 
 
 
-#crf_train(crf_input_file='../../../preprocessing/R/test/results/gps_only/crf_feature_SDU078',feature_inclusion_file='../feature_list_all',labels=labels,crf_model_file = 'results/gps_only/crf_SDU078_model', options)
-#crf_tag(crt_test_file='../../../preprocessing/R/test/results/gps_only/crf_feature_SDU078', crf_model_file='results/gps_only/crf_SDU078_model', feature_inclusion_file ='../feature_list_all', output_prediction_file='results/gps_only/result_SDU078_train_SDU078_test', NULL) 
+
+ # crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU082', crf_model_file='results/crf_SDU082_model_fb_20epochs_preprocess_scale_only2', 
+ #   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_SDU082_train_SDU082_fb_test_20epochs_preprocess_scale_only2', NULL) 
+
+# crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU085', crf_model_file='results/crf_all_model_20epochs_preprocess_scale_only2', 
+#   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU085_test_20epochs_preprocess_scale_only2', NULL) 
 
 
-#crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_SDU078',feature_inclusion_file='../feature_list_all',labels=labels,crf_model_file = 'results/crf_SDU078_model', options)
-#crf_tag(crt_test_file='../../../preprocessing/R/test/results/crf_feature_SDU078', crf_model_file='results/crf_SDU078_model', feature_inclusion_file ='../feature_list_all', output_prediction_file='results/result_SDU078_train_SDU078_test', NULL) 
+# crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU082', crf_model_file='results/crf_all_model_collins_20epochs_preprocess_scale_only2', 
+#   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU082_test_collins_20epochs_preprocess_scale_only2', NULL) 
+
+# crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU085', crf_model_file='results/crf_all_model_collins_20epochs_preprocess_scale_only2', 
+#   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU085_test_collins_20epochs_preprocess_scale_only2', NULL) 
 
 
-crf_train(crf_input_file='../../../preprocessing/R/test/results/crf_feature_all',feature_inclusion_file='../feature_list_all',labels=labels,crf_model_file = 'results/crf_all_model', options)
-crf_tag(crt_test_file='../../../preprocessing/R/test/results/crf_feature_SDU078', crf_model_file='results/crf_all_model', feature_inclusion_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU078_test', NULL) 
+# crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU086', crf_model_file='results/crf_all_model_20epochs_preprocess_scale_only2', 
+#   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU086_test_20epochs_preprocess_scale_only2', NULL) 
+
+# crf_tag(crf_test_file='../../../preprocessing/R/test/results/crf_feature_SDU086', crf_model_file='results/crf_all_model_collins_20epochs_preprocess_scale_only2', 
+#   	feature_list_file ='../feature_list_all', output_prediction_file='results/result_all_train_SDU086_test_collins_20epochs_preprocess_scale_only2', NULL) 

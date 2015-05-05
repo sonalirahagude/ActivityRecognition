@@ -2,13 +2,14 @@
 # Description: This module implements contrasive divergence technique to learn the CRF weights/
 #               It uses Gibbs sample with 4 number of rounds. 
 
-contrasive_divergence = function(G, y, labels) {
-    rounds = 4
+contrasive_divergence = function(G, y, labels, gibbs_sampling_rounds) {
+    rounds = gibbs_sampling_rounds
     crf_sequence_length = length(y)
     #select an initial value close to y, we start with the first position
-    y_new = y
-   
-    for (epoch in  1 : rounds) {
+    #y_new = y
+    y_new = sample(labels, crf_sequence_length ,replace=TRUE)
+    y_old = y_new
+    for (round in  1 : rounds) {
         for (i in 1 : crf_sequence_length) {
             if (i == crf_sequence_length) {
                 label_next = "STOP"
@@ -26,7 +27,6 @@ contrasive_divergence = function(G, y, labels) {
             sum = 0;           
             no_of_labels = length(labels)
             p = array(0, dim=c(crf_sequence_length, no_of_labels), dimnames = list(1:crf_sequence_length,labels))
-            scaled = array(FALSE, dim=length(labels),dimnames=list(labels))
             #now, compute for every possible value of the tag at position i
             for (u in labels ) {
                 # print(i)
@@ -35,31 +35,28 @@ contrasive_divergence = function(G, y, labels) {
                 # print(label_next)
                 # print(G[label_prev, u, i])
                 # print(G[u, label_next, i+1])
-                p[i,u] = exp(G[label_prev, u, i]) * exp(G[u, label_next, i+1])                
-                if (p[i,u] > 10000) {
-                    p[i,u] = p[i,u]/10000
-                    scaled[u] = TRUE
-                }            
-                sum = sum + p[i,u]
+                # calculate the log of the numerator
+                p[i,u] = (G[label_prev, u, i]) + (G[u, label_next, i+1])                                                        
+                # print(p[i,u])
+                # print(sum)
             }
-
-            
+            # now use the log sum exp trick to actually calculate the probabilities
+            lse = logSumExp(p[i,])
+            # print(lse)
+            # print (p[i,])
+            p[i,] = exp(p[i,] - lse)            
+            # print (p)
             # choose a random number for sampling the data
             rand_no = runif(1) 
-            rand_no = rand_no * (sum)
-            
+            rand_no = rand_no * sum(p[i,])            
             csum = 0;
-            for (u in labels ) {                
-                
-                if(scaled[u]) {
-                    p[i,u] = p[i,u]/sum
-                    p[i,u] = p[i,u] * 10000
-                }
-                else {
-                    p[i,u] = p[i,u]/sum               
-                }
+            for (u in labels ) {                                
+                #p[i,u] = p[i,u]/sum                               
                 csum = csum + p[i,u]
-                #If the rand_no falls within this range of buckets, choose the value u, ignore labels 'START' and 'STOP'
+                #If the rand_no falls within this range of buckets, choose the value u
+                # print(rand_no)
+                # print(p[i,u])
+                # print(csum)
                 if(rand_no < csum && u!='START' && u!= 'STOP') {
                     y_new[i] = u
                     break
@@ -67,5 +64,8 @@ contrasive_divergence = function(G, y, labels) {
             }                        
         }       
     }
+    # cat("y:" , y, "\n")
+    # cat("y_old:" , y_old, "\n")
+    # cat("y_new:" , y_new, "\n\n")
     return (y_new)
-}
+}   

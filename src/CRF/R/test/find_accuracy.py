@@ -11,7 +11,7 @@ def build_confusion_matrix(prediction_file):
 		prediction = prediction.strip()
 		label = label.strip()
 		#skip header
-		if(prediction == 'Prediction'):
+		if(prediction == 'prediction'):
 			continue
 		confusion_matrix[label][prediction] = confusion_matrix[label][prediction] + 1
 	print confusion_matrix
@@ -29,5 +29,5 @@ if __name__ == '__main__':
 			accuracy = accuracy + 1
 		total = total + 1 
 	print "accuracy: " + str(accuracy*1.0/total*100.0)
-	#build_confusion_matrix(sys.argv[1])
+	build_confusion_matrix(sys.argv[1])
 	f.close()

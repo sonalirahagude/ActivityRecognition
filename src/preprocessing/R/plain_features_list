@@ -1,9 +1,11 @@
 # GPS related features
-avgspeed
-netdistance
-totaldistance
-elechange
-snr
+#lat
+#lon
+snrUsed
+#duration
+speed
+elevationDelta
+
 
 # Accelerometer related features
 mean

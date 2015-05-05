@@ -21,6 +21,12 @@
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Checking the accuracy and confusion matrix given the prediction file.
+## Run the following command on the command line,
+	python find_accuracy.py /home/sonali/git/ActivityRecognition/src/CRF/R/test/<result_file_name>
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Running and testing the CRFSuite train implementation[DEPRECATED]
 ## Install CRFSuite 0.12 and its bindings for python
 ## Please follow the instructions at https://raw.githubusercontent.com/chokkan/crfsuite/master/swig/python/README

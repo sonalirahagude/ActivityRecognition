@@ -24,56 +24,125 @@ get_feature_inclusion_list = function(file) {
 ## labels: list of possible labels for the domain
 ## crf_model_file: filename to save the model
 ## options: A dictionary contains values for learning parameters like no_of_epochs, learning_rate etc.
+
 crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, options) {
+	
 	feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
 	# read training data from file
-	train_list = get_training_data(crf_input_file, feature_inclusion_list)
-	x_list = train_list[[1]]
-	y_list = train_list[[2]]
+	training_method = options["training_method"]
 
+	#--------------------------------------------------
+	train_list = get_training_data(crf_input_file, feature_inclusion_list)
+
+	#save(train_list,file='training_list_all')
+
+	#train_list = list()
+	#load('training_list_all')
+	#--------------------------------------------------
+
+	x_list = train_list[[1]]
+	pre_proc_values = get_pre_proc_values(x_list)
+	x_list = get_scaled_training_data(x_list, pre_proc_values)
+	
+	y_list = train_list[[2]]
 	# get the template features. These will be combined with indicator functions I(y[i-1]='label1') * I(y[i]='label2') 
 	features = colnames(x_list[[1]])
-	
+
 	# Append START and STOP to the list of labels
 	labels = append(labels, c("START","STOP"))
 	# Weights is a 3 dimensional matrix, 
 	weights_new = array(0,dim=c(length(labels), length(labels), length(features)),dimnames=(list(labels, labels, features)))
+	start_time = Sys.time()
 	print("Starting CRF training")
-	for (i in 1:options["no_of_epochs"]) {
-        print(i)
+	for (i in 1: as.numeric(options["no_of_epochs"])) {
+        cat("Running epoch: ",i,"\n")
+        weights_old = weights_new
         for(j in 1:length(x_list)) {
-        	# TODO: CAN TRY TAKING THIS OUT OF THE LOOP
-            weights_old = weights_new
-            x = x_list[[j]]
+        	# TODO: CAN TRY TAKING THIS OUT OF THE LOOP        	
+        	#cat("Processing training sequence: ",j,"\n")
+            x = x_list[[j]]                    
             y = y_list[[j]]
             if (length(y) != nrow(x)) {
                 cat('Error with Preprocessing, lengths x and y dont match\n');          
                 return
             }
-            #Calculate Viterbi Path and y_hat
-            G = compute_g_matrices(x, weights_old, labels)                      
+            #if(j==50) {stop("")}
+
+            #Calculate Viterbi Path and y_hat            
+            G = compute_g_matrices(x, weights_new, labels)                      
+            #G = compute_g_matrices_train(x, y, weights_new, labels)                                         
+            # print(G)
+            learning_rate = as.numeric(options["learning_rate"])
+            #collins perceptron
+            if (training_method == "collins_perceptron")  {
+                yHat = viterbi(G, x, labels)
+            	weights_new = update_features(x,y, yHat,weights_new,learning_rate,labels)            	
+            }
+            else if(training_method == "contrasive_divergence") {           
+            	gibbs_sampling_rounds = as.numeric(options["gibbs_sampling_rounds"])
+            	yHat = contrasive_divergence(G, y, labels, gibbs_sampling_rounds)
+            	weights_new = update_features(x, y, yHat, weights_new,learning_rate,labels)
+            	#weights_new = update_features(x,yHat,weights_new,-1*learning_rate,labels)            
+            }
+            else if(training_method == "forward_backward") {
+            	alpha_beta = compute_forward_backword_vectors(G,x,y, labels)
+            	alpha = alpha_beta[[1]]
+            	beta = alpha_beta[[2]]
+        	    weights_new = update_features_expectation(G, x, y, weights_new, learning_rate, labels, alpha, beta) 
+            }
+            else {
+            	stop("incorrect training method: ", training_method)
+            }
+            #print(yHat)
             
-            #If training method == 1 then do Collins Perceptron
-            #if trainingMethod == 1
-            #    yHat = Viterbi(G,sampleSize, tagSize);
-            #Else if its 2 do Contrasive divergence
-            #elseif trainingMethod == 2
-            yHat = contrasive_divergence(G, y, labels)
-            #else
-            #    fprintf('Training Method not specified.\n');
             
-            #Colins Perceptron training
-            learning_rate = options["learning_rate"]
             # We need to compute the sum of feature functions twice, first for y and then for yHat
-            weights_new = update_features(x,y,weights_old,learning_rate,labels)
-            weights_new = update_features(x,yHat,weights_old,-1*learning_rate,labels)
             # normalize weights so that Gibbs sampling does not have overflow
-            # weights_new = normalize(weights_new)                   
+            # weights_new = normalize(weights_new)       
+            #break            
+        }
+        # write the weights after every epoch
+        intermediate_file = paste0(crf_model_file, i)
+    	model = list()
+   		model$weights = weights_new
+    	model$pre_proc_values = pre_proc_values
+        #save(model,file = intermediate_file)         
+        #check for convergence 
+        if (max(weights_old - weights_new) < 1) {
+     		print("coverged at: " , i)
+        	break
         }
     }    
     print(weights_old - weights_new)
     # save the trained feature function weights to a file
-    save(weights_new,file=crf_model_file)
+    model = list()
+    model$weights = weights_new
+    model$pre_proc_values = pre_proc_values
+    save(model,file=crf_model_file)
+    end_time = Sys.time()
+    cat("Training time: " , end_time - start_time, "\n")
+    #save(weights_new,file=crf_model_file)
+}
+
+
+get_pre_proc_values = function (x_list) {
+	single_df = do.call("rbind",x_list)
+	pre_proc_values = preProcess(single_df, method = c('center','scale'),verbose=TRUE)
+	return (pre_proc_values)
+}
+
+get_scaled_training_data = function (x_list, pre_proc_values) {
+	for(i in 1:length(x_list)) {
+		x_list[[i]] = predict(pre_proc_values,x_list[[i]])
+		na_indices = is.na(x_list[[i]])
+		x_list[[i]][na_indices] = 0.0	
+	}
+	return(x_list)
+}
+
+get_rescaled_training_data = function(x_list) {
+	single_df = do.call("rbind",x_list)
+	#scaleingle_df = scale
 }
 
 # Reads the training data from the file and returns a list of dataframes, each corresponding to one CRF sequence x. Also, returns a parallel list of label sequences.
@@ -100,7 +169,10 @@ get_training_data = function(crf_input_file, feature_inclusion_list) {
 	# Start reading the data and create dataframes for each sequence. Final output will be list of dataframes and list of output label vectors
 	all_x = list()
 	all_y = list()
-	x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
+	count = 1
+	#x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
+	#print(typeof(x))
+	x = array(0, dim = c(0,length(filtered_indices)))
 	y = character()
 	line=""
 	colnames(x) = filtered_headers
@@ -112,12 +184,16 @@ get_training_data = function(crf_input_file, feature_inclusion_list) {
 		else if(startsWith(line, "#END", trim=TRUE, ignore.case=FALSE)) {	
 			# create a new data frame
 			colnames(x) = filtered_headers
-			x = scale(x,center=FALSE)
+			#x = scale(x,center=FALSE,scale=TRUE)
+			#print(typeof(x))
 			# scale will return NaNs for columns with no variance, set those values to 0
-			x = replace(x,is.na(x),0.0)
-			all_x = append(all_x, list(x))
-			all_y = append(all_y, list(y))
-			x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
+			#x = replace(x,is.na(x),0.0)
+			# do not use append here, it does some funny business while appending the dataframe 
+			all_x[[count]] = x
+			all_y[[count]] = y
+			count = count + 1
+			#x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
+			x = array(0, dim = c(0,length(filtered_indices)))
 			y = character()
 		}
 		else {

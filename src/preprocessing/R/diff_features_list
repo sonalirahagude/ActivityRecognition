@@ -1,0 +1,5 @@
+#this file contains the attributes whose differences should be added as features to the CRF
+lat
+lon
+speed
+elevationDelta

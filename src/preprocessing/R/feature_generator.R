@@ -30,49 +30,14 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 	close(conn)	
 }
 
-generate_header = function(plain_features_file, feature_list_file, output_feature_file) {
-	conn = file(feature_list_file,open = 'r')
-	feature_functions = readLines(conn)	
-	print(output_feature_file)
-	output_file = file.path(output_feature_file)
-	cat("label", "\t", sep="", file=output_feature_file, append=TRUE)		
-	for (feature_function in feature_functions) {
-		# ignore comments in the feature list file
-		if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')
-			next
-		if(feature_function == "plain_features") {
-			plain_features_list = get_plain_features(plain_features_file)
-			cat(plain_features_list, sep="", file=output_file, append=TRUE)		
-		}
-		else {
-			cat(feature_function, "\t", sep="", file=output_file, append=TRUE)	
-		}
-	}
-	cat('\n', file=output_file, append=TRUE)	
-}
-
-get_plain_features  = function(plain_features_file) {
-	conn = file(plain_features_file, open = 'r')
-    plain_features = readLines(conn) 
-   	plain_features_list = ""
-    for (plain_feature in plain_features) {
-    	# ignore comments in the feature list file
-		if (startsWith(plain_feature, '#', trim=TRUE) | trim(plain_feature) == '')
-			next
-    	plain_features_list = paste0(plain_features_list,plain_feature,"\t")
-	}
-	return (plain_features_list)
-}
-
 # Generates and writes CRF compliant features to a file
 # Arguments:
 ## feature_dirs: list of directories that contain the original/raw observation files at desired window_size rate 
 ## feature_list_file: contains list of names of feature functions to be used to generate features
-## plain_features_file: contains list of names of raw observations to be directly included as a feature function
-## output_feature_file: file to write the CRF compliant features to, will contain the original features at window_size rate <feature1, feature2,...featuren, label>
+## output_feature_file: file to write the CRF compliant features to, will contain the original features at window_size rate <label, feature1, feature2,...featuren>
 ## crf_sequence_length: length of a CRF sequence
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
-generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, raw_features_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15 ) {
+generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15, options ) {
 	for(feature_dir in feature_dirs) {
 		if(!file.exists(feature_dir)) {
 			stop("Feature directory not found: " , feature_dir)
@@ -89,14 +54,12 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	if (file.exists( file.path(output_feature_file) )) {
       file.remove(output_feature_file)
     }
-	generate_header(plain_features_file, feature_list_file, output_feature_file) 
+	generate_header(feature_list_file, output_feature_file, options) 
 
-	options = list(plain_features_list = plain_features_file)	
 	plain_features = data.frame()
 	for(feature_dir in feature_dirs) { 
-		if(file.info(feature_dir)$isdir) {
-			cat("Exracting features from: " , feature_dir, "\n")
-			#single_feature =  read_from_dir(feature_dir)
+		cat("Exracting features from: " , feature_dir, "\n")
+		if(file.info(feature_dir)$isdir) {			
 			features = read_from_dir(feature_dir)
 		}
 		else {
@@ -106,15 +69,23 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 			plain_features = features
 		}
 		else {
-			if("participant" %in% colnames(features) & "participant" %in% colnames(features) ) {
+			# make the date formate same 
+			#print(t(plain_features[1, ]$timestamp))	
+			date_format = get_date_format(toString(plain_features[1, ]$timestamp))
+			plain_features$timestamp = strptime(plain_features$timestamp, date_format)
+			features$timestamp = strptime(features$timestamp, date_format)
+
+			if("participant" %in% colnames(plain_features) & "participant" %in% colnames(features) ) {
 				plain_features = merge (plain_features, features,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
 			}
 			else {
 				plain_features = merge (plain_features, features,  by.x=c("timestamp"), by.y=c("timestamp"), all=FALSE, sort=FALSE)	
 			}
-		}
+		}		
 	}
-	
+	if(nrow(plain_features) == 0) {
+		stop("Feature merge failed. Please check the feature directories.", feature_dirs)
+	}
 	if(file.info(label_dir)$isdir) {
 		aligned_labels_dir = paste0(label_dir, "_aligned")
 		if (!file.exists(aligned_labels_dir)) {
@@ -128,7 +99,8 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 
 	#---------------------
 	#date_format = get_date_format(plain_features[1, ]$dateTime)
-	date_format = get_date_format(plain_features[1, ]$timestamp)
+	# make the date formate same 
+	date_format = get_date_format(toString(plain_features[1, ]$timestamp))
 	#---------------------
 	# first fomat the labels timestamp in the same format as features so that we can merge on the timestamp
 	labels$timestamp = strptime(labels$timestamp, date_format)
@@ -205,6 +177,9 @@ read_from_dir = function(dir, names = NULL) {
     		feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
     		# add the participant name so that it can be used during merging
     		feats[,'participant'] = rep(names[i], times = nrow(feats))    		
+    		if("dateTime" %in% colnames(feats)) {
+				feats = rename(feats,c("dateTime"="timestamp"))
+			}
     		all_feats = rbind(all_feats, feats)
     	}
 	}
@@ -213,6 +188,12 @@ read_from_dir = function(dir, names = NULL) {
 
 read_from_file = function (file) {
 	feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
+	if("identifier" %in% colnames(feats)) {
+		feats = rename(feats,c("identifier"="participant"))
+	}
+	if("dateTime" %in% colnames(feats)) {
+		feats = rename(feats,c("dateTime"="timestamp"))
+	}
 	return (feats)
 }
 
