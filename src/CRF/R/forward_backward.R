@@ -38,21 +38,23 @@ compute_forward_backword_vectors = function(G,x,y, labels) {
         for (u in labels) {
             log_alpha[i,u] = logSumExp(log_alpha [i-1,] + (G[,u,i]))
             log_beta[u,crf_sequence_length -i] = logSumExp((G[u,,crf_sequence_length-i+1]) + log_beta[,crf_sequence_length-i+1] )      
+            #cat("log_alpha[i,u]: " , log_alpha[i,u], ", log_beta[u,crf_sequence_length -i] : ", log_beta[u,crf_sequence_length -i] , "\n")
         }
+        #print(i)
     }
     alpha = (log_alpha)
     beta = (log_beta)
     #normalize alpha and beta
-    for(i in 1: crf_sequence_length) {
-        if(sum(alpha[i,]) == 0){
-            next
-        }
-      alpha [i,] = alpha[i,]/sum(alpha[i,])
-      if(sum(beta[,i]) == 0){
-            next
-        }
-      beta[,i] = beta[,i]/sum(beta[,i])
-    }    
+    # for(i in 1: crf_sequence_length) {
+    #     if(sum(alpha[i,]) == 0){
+    #         next
+    #     }
+    #   alpha [i,] = alpha[i,]/sum(alpha[i,])
+    #   if(sum(beta[,i]) == 0){
+    #         next
+    #     }
+    #   beta[,i] = beta[,i]/sum(beta[,i])
+    # }    
     return (list(alpha,beta))
 }
 
@@ -84,7 +86,7 @@ compute_expectation = function(alpha, beta, G, x, feature, labels) {
     	}    
     }
     #sum =sum / alpha[crf_sequence_length,"STOP"]
-    print(sum)    
+    #print(sum)    
     if(is.nan(sum) || is.infinite(sum)) {
         print(alpha)
         print(beta)

@@ -58,7 +58,6 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
         cat("Running epoch: ",i,"\n")
         weights_old = weights_new
         for(j in 1:length(x_list)) {
-        	# TODO: CAN TRY TAKING THIS OUT OF THE LOOP        	
         	#cat("Processing training sequence: ",j,"\n")
             x = x_list[[j]]                    
             y = y_list[[j]]
@@ -66,7 +65,7 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
                 cat('Error with Preprocessing, lengths x and y dont match\n');          
                 return
             }
-            #if(j==50) {stop("")}
+            # if(j==50) {stop("")}
 
             #Calculate Viterbi Path and y_hat            
             G = compute_g_matrices(x, weights_new, labels)                      
@@ -82,13 +81,14 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
             	gibbs_sampling_rounds = as.numeric(options["gibbs_sampling_rounds"])
             	yHat = contrasive_divergence(G, y, labels, gibbs_sampling_rounds)
             	weights_new = update_features(x, y, yHat, weights_new,learning_rate,labels)
-            	#weights_new = update_features(x,yHat,weights_new,-1*learning_rate,labels)            
             }
             else if(training_method == "forward_backward") {
             	alpha_beta = compute_forward_backword_vectors(G,x,y, labels)
             	alpha = alpha_beta[[1]]
             	beta = alpha_beta[[2]]
+            	#print(weights_new)
         	    weights_new = update_features_expectation(G, x, y, weights_new, learning_rate, labels, alpha, beta) 
+        	    weights_new = normalize(weights_new) 
             }
             else {
             	stop("incorrect training method: ", training_method)
@@ -108,7 +108,8 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
     	model$pre_proc_values = pre_proc_values
         #save(model,file = intermediate_file)         
         #check for convergence 
-        if (max(weights_old - weights_new) < 1) {
+     	#print(max(weights_old - weights_new) )
+        if (max(abs(weights_old - weights_new)) < 0.001) {
      		print("coverged at: " , i)
         	break
         }
@@ -121,7 +122,6 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
     save(model,file=crf_model_file)
     end_time = Sys.time()
     cat("Training time: " , end_time - start_time, "\n")
-    #save(weights_new,file=crf_model_file)
 }
 
 
@@ -138,11 +138,6 @@ get_scaled_training_data = function (x_list, pre_proc_values) {
 		x_list[[i]][na_indices] = 0.0	
 	}
 	return(x_list)
-}
-
-get_rescaled_training_data = function(x_list) {
-	single_df = do.call("rbind",x_list)
-	#scaleingle_df = scale
 }
 
 # Reads the training data from the file and returns a list of dataframes, each corresponding to one CRF sequence x. Also, returns a parallel list of label sequences.
@@ -192,7 +187,7 @@ get_training_data = function(crf_input_file, feature_inclusion_list) {
 			all_x[[count]] = x
 			all_y[[count]] = y
 			count = count + 1
-			#x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
+			
 			x = array(0, dim = c(0,length(filtered_indices)))
 			y = character()
 		}
@@ -201,8 +196,7 @@ get_training_data = function(crf_input_file, feature_inclusion_list) {
 			feature_values_filtered = feature_values[filtered_indices]			
 			x = rbind(x,as.numeric(feature_values_filtered))
 			y = append(y,feature_values[1])
-		}
-		
+		}		
 		line = readLines(conn, n= 1, warn = FALSE)
 	}
 	close(conn)

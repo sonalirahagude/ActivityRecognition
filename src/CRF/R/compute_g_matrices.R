@@ -90,13 +90,13 @@ compute_g_matrices_train = function(x,y,weights, labels) {
 }
 
 # Computes the sum of all the feature functions for a particular position 'i' in the given crf sequence
-compute_position_feature_values = function(token,label_cur,label_prev,weights) {
-    total = 0.0
-    for(feature in names(token)) {
-        # cat("weights: ", weights[label_prev,label_cur,feature], "\n")
-         total = total + weights[label_prev,label_cur,feature] * token[feature]        
-         # cat("total: ", total, "\n")
-    }
-    # print(total)
-    return(total)
-}
+# compute_position_feature_values = function(token,label_cur,label_prev,weights) {
+#     total = 0.0
+#     for(feature in names(token)) {
+#         # cat("weights: ", weights[label_prev,label_cur,feature], "\n")
+#          total = total + weights[label_prev,label_cur,feature] * token[feature]        
+#          # cat("total: ", total, "\n")
+#     }
+#     # print(total)
+#     return(total)
+# }

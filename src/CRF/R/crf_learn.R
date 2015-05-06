@@ -48,7 +48,7 @@ update_features_expectation = function(G, x, y, weights, learning_rate, labels, 
     for(feature in features) {
         feature_value = compute_single_feature_across_sequence(x,feature)
         expectation = compute_expectation(alpha, beta, G, x, feature, labels)            
-        cat("feature_value: ", feature_value, ", expectation: ", expectation, "\n")           
+        #cat("feature_value: ", feature_value, ", expectation: ", expectation, "\n")           
         for (i in 1:crf_sequence_length) {
             if (i == crf_sequence_length) {
                 label_prev = y[i-1]
