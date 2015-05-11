@@ -7,6 +7,8 @@ generate_header = function(feature_list_file, output_feature_file, options) {
 	output_file = file.path(output_feature_file)
 	token_count = 0
 	cat("label", "\t", sep="", file=output_feature_file, append=TRUE)		
+	cat("participant", "\t", sep="", file=output_feature_file, append=TRUE)		
+
 	for (feature_function in feature_functions) {		
 		# ignore comments in the feature list file
 		if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')

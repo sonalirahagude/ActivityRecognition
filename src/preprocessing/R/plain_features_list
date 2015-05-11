@@ -1,9 +1,13 @@
 # GPS related features
-#lat
-#lon
+lat
+lon
 snrUsed
-#duration
+snrView
+nsatUsed
+nsatView
 speed
+distance
+ele
 elevationDelta
 
 

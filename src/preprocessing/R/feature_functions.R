@@ -32,6 +32,77 @@ no_of_pauses = function(seq, position, labels, options = NULL) {
   return(0)
 }
 
+# finds distance between 2points defined as (lat1,lon1) & (lat2,lon2)s
+net_distance = function(seq, position, labels, options = NULL) {
+    if ("lat" %in% colnames(seq) & "lon" %in% colnames(seq)) {
+        seq_matrix = as.matrix(seq[c("lat", "lon")])
+        start  = 1
+        end = nrow(seq_matrix)
+        lat1 = seq_matrix[start,1]
+        lon1 = seq_matrix[start,2]
+        lat2 = seq_matrix[end,1]
+        lon2 = seq_matrix[end,2]
+        radius = 6371 * 1000 # m
+        dlat = (lat2 - lat1) * pi / 180
+        dlon = (lon2 - lon1) * pi / 180
+        a = sin(dlat / 2) * sin(dlat / 2) + cos(lat1 * pi / 180) * cos(lat2 * pi / 180) * sin(dlon / 2) * sin(dlon / 2)
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        d = radius * c
+        return(d)
+    }   
+}
+
+# finds average speed
+average_speed = function(seq, position, labels, options = NULL) {
+    if ("speed" %in% colnames(seq)) {
+        avg = mean(seq$speed)
+        return (avg)
+    }
+}
+
+sd_speed = function(seq, position, labels, options = NULL) {
+    if ("speed" %in% colnames(seq)) {
+        std_dev = sd(seq$speed)
+        return (std_dev)
+    }
+}
+
+coefficient_of_variation = function(seq, position, labels, options = NULL) {
+    if ("speed" %in% colnames(seq)) {
+        std_dev = sd(seq$speed)
+        avg = mean(seq$speed)
+        if (avg > 0) {            
+            return (std_dev*1.0/avg)
+        } else {
+            return (0.0)
+        }
+    }
+}
+
+
+
+# finds total distance covered
+total_distance = function(seq, position, labels, options = NULL) {
+    if ("distance" %in% colnames(seq)) {
+        total = sum(seq$distance)
+        return (total)
+    }
+}
+
+net_to_total_distance_ratio = function(seq, position, labels, options = NULL) {
+    if ("distance" %in% colnames(seq)) {
+        total_distance = sum(seq$distance)
+        d = net_distance(seq, position, labels, options)
+        if(total_distance == 0) {
+            ratio = 0.0
+        }
+        else {
+            ratio = d*1.0/total_distance
+        }
+        return(ratio)
+    }    
+}
+
 # add functions that simply return value of the interested attribute without any processing, can read from a list
 plain_features = function(seq, position, labels, options = NULL) {
     plain_features_file = options[['plain_features_list']]

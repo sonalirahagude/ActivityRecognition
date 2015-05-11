@@ -3,10 +3,18 @@
 # Trajectory related features
 no_of_pauses
 
+average_speed
+sd_speed
+coefficient_of_variation
+
+total_distance
+net_distance
+net_to_total_distance_ratio
+
 
 # File to mention plain features
 plain_features
 
 
 # Add differences from previous timesteps as features
-#difference_features
+difference_features

@@ -4,16 +4,49 @@
 # feature generator for the CRF. 
 # every line in the output file consists of features for a particular token in the CRF sequence and every sequence is contained with a START-END pair
 # <token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
-generate_features= function( feature_list_file, output_file, options, sequence) {
+generate_features= function( feature_list_file, output_file_name, options, sequence, participant_file_list) {
 	conn = file(feature_list_file,open = 'r')
 	feature_functions = readLines(conn)	
-	output_file  = file.path(output_file)
+	
+	output_file  = file.path(output_file_name)
 	labels = as.vector(sequence$behavior)
+
+	# start writing to the individual participant file simultaneously
+	participants = as.vector(sequence$participant)
+	first_participant = participants[1]
+	participant_output_file_name = paste0(output_file_name,"_", first_participant)
+	participant_output_file = file.path(participant_output_file_name)
+	if(participant_output_file_name %in% participant_file_list) {		
+	} else {
+		participant_file_list = append(participant_file_list, participant_output_file_name)
+		generate_header(feature_list_file, participant_output_file_name, options)
+	}
+	
 	# mark start of a new sequence in the output file
 	cat('#START\n', file=output_file, append=TRUE)
+	cat('#START\n', file=participant_output_file, append=TRUE)
 	for(i in 1:nrow(sequence)) {
 		label = labels[i]
+		participant = participants[i]
+		if(participant != first_participant ) {
+			cat('#END\n', file=participant_output_file, append=TRUE)
+			participant_output_file_name = paste0(output_file_name,"_", participant)
+			first_participant = participant
+			participant_output_file = file.path(participant_output_file_name)
+			if(participant_output_file_name %in% participant_file_list) {		
+			} else {
+				participant_file_list = append(participant_file_list, participant_output_file_name)
+				generate_header(feature_list_file, participant_output_file_name, options)
+			}
+			cat('#START\n', file=participant_output_file, append=TRUE)	
+		}
+		
 		cat(label,'\t', sep="", file=output_file, append=TRUE)	
+		cat(label,'\t', sep="", file=participant_output_file, append=TRUE)	
+		
+		cat(participant,'\t', sep="", file=output_file, append=TRUE)	
+		cat(participant,'\t', sep="", file=participant_output_file, append=TRUE)				
+
 		for(feature_function in feature_functions) {
 			# ignore comments in the feature list file
 			if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')
@@ -22,12 +55,18 @@ generate_features= function( feature_list_file, output_file, options, sequence) 
 			feature_value = do.call(feature_function, list(sequence, i, labels, options))
 			# write the returned feature value to output file			
 			cat(feature_value, "\t", sep="", file=output_file, append=TRUE)		
+			cat(feature_value, "\t", sep="", file=participant_output_file, append=TRUE)		
+
 		}
 		cat('\n', file=output_file, append=TRUE)			
+		cat('\n', file=participant_output_file, append=TRUE)			
+
 	}
 	# mark end of a new sequence in the output file
 	cat('#END\n', file=output_file, append=TRUE)
+	cat('#END\n', file=participant_output_file, append=TRUE)
 	close(conn)	
+	return (participant_file_list)
 }
 
 # Generates and writes CRF compliant features to a file
@@ -119,11 +158,10 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	#---------------------
 	# discard training points for whom the corresponding labels are unavailable
 	plain_features = plain_features[plain_features$behavior!="NULL", ]
-	
+	participant_file_list = list()
 	# The below logic detects if 2 consecutive data points are non contiguous in time,
 	# if so, it starts a new CRF sequence for the later data point, with no overlap.
 	i = 1
-	
 	while(i <= nrow(plain_features) ) {
 		max_seq_end = i + crf_sequence_length - 1
 		if(max_seq_end > nrow(plain_features)) {
@@ -141,7 +179,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 				break
 			}
 		}
-		sequence = generate_features(feature_list_file, output_feature_file, options, plain_features[i:seq_end,] )
+		participant_file_list = generate_features(feature_list_file, output_feature_file, options, plain_features[i:seq_end,] , participant_file_list)
 		# While incrementing i, if there was no cut off, then we can overlap the next sequence with tokens from the previous sequence,
 		# else we have to start a fresh new sequence with no overlap
 		if( seq_end == max_seq_end) {			
@@ -159,7 +197,6 @@ read_from_dir = function(dir, names = NULL) {
 	if (is.null(names)) {
 		names = list.files(dir)
 	}
-
 	if (length(names) == 0) {
 		cat("Could not find files in directory: " , dir,". Either the directory is empty or it does not exist.\n")
 		return(NULL)
@@ -179,8 +216,8 @@ read_from_dir = function(dir, names = NULL) {
     		feats[,'participant'] = rep(names[i], times = nrow(feats))    		
     		if("dateTime" %in% colnames(feats)) {
 				feats = rename(feats,c("dateTime"="timestamp"))
-			}
-    		all_feats = rbind(all_feats, feats)
+			}		
+			all_feats = rbind(all_feats, feats)    		
     	}
 	}
 	return(all_feats)
