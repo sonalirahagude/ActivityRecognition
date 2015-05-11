@@ -14,10 +14,12 @@ def build_confusion_matrix(prediction_file):
 		if(prediction == 'prediction'):
 			continue
 		confusion_matrix[label][prediction] = confusion_matrix[label][prediction] + 1
-	print confusion_matrix
+	return confusion_matrix
 
 if __name__ == '__main__':
 	prediction_file = sys.argv[1]
+	accuracy_file = sys.argv[2]
+	fa = open(accuracy_file,'a+')
 	f = open(prediction_file,'r')  
 	accuracy = 0
 	total = 0
@@ -28,6 +30,10 @@ if __name__ == '__main__':
 		if (prediction == label):
 			accuracy = accuracy + 1
 		total = total + 1 
+	print "prediction for: " + prediction_file
 	print "accuracy: " + str(accuracy*1.0/total*100.0)
-	build_confusion_matrix(sys.argv[1])
+	#fa.write(str(accuracy*1.0/total*100.0))
+	df = build_confusion_matrix(sys.argv[1])
+	df.to_csv(accuracy_file)
+	print("-------------------------------------------------------------------------------------------------------------------------")
 	f.close()

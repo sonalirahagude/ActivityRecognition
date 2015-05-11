@@ -46,7 +46,7 @@ compute_g_matrices = function(x,weights, labels) {
         # We need to calculate all the cells for the prediction part, so that all possible combinations are available while inferring the mostly likely sequence
     for(label_prev in labels) {
         for(label_cur in labels) {
-                #cat("i: ", i, ", x[i]: " , x[i,], ", label_cur: " , label_cur, ", label_prev: ", label_prev,"\n")                  
+                #cat(" x: " , x, ", label_cur: " , label_cur, ", label_prev: ", label_prev,"\n")                  
                 G[label_prev,label_cur,] = t( x %*% as.matrix(weights[label_prev,label_cur,])) 
         }
     }            

@@ -1,12 +1,25 @@
 # GPS related features
-avgspeed
-totaldistance
-elechange
-snr
-
+#lat
+#lon
+snrUsed
+snrView
+nsatUsed
+nsatView
+speed
+distance
+ele
+elevationDelta
 
 # overall features
 no_of_pauses
+average_speed
+sd_speed
+coefficient_of_variation
+
+total_distance
+net_distance
+net_to_total_distance_ratio
+
 
 # Accelerometer related features
 mean
