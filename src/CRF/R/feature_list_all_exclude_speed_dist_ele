@@ -1,10 +1,10 @@
 # GPS related features
 #lat
 #lon
-#snrUsed
-#snrView
-#nsatUsed
-#nsatView
+snrUsed
+snrView
+nsatUsed
+nsatView
 #speed
 #distance
 #ele

@@ -1,0 +1,3 @@
+# Both the numbers below should match ideally (except there are some missing features in accelerometer/gps data)
+..../data$ cut -f 1 ../test/results/crf_feature_all_15_seqLength_0_overlap_SDU079 | less|  grep "#" | wc -l
+..../data$  less AnnotatedFilesNew_aligned/SDU079/2011-07-13.csv | grep -v NULL | wc -l

@@ -42,10 +42,12 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
 	#--------------------------------------------------
 	print("got training data")
 	x_list = train_list[[1]]
+	y_list = train_list[[2]]
 	pre_proc_values = get_pre_proc_values(x_list)
 	x_list = get_scaled_training_data(x_list, pre_proc_values, excluded_participant)
 	print("got scaled training data")
-	y_list = train_list[[2]]
+	
+
 	test_x_list = train_list[[3]]
 	test_y_list = train_list[[4]]
 	# get the template features. These will be combined with indicator functions I(y[i-1]='label1') * I(y[i]='label2') 
@@ -55,13 +57,18 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
 	labels = append(labels, c("START","STOP"))
 	# Weights is a 3 dimensional matrix, 
 	weights_new = array(0,dim=c(length(labels), length(labels), length(features)),dimnames=(list(labels, labels, features)))
+
 	start_time = Sys.time()
 	print("Starting CRF training")
+
+	old_likehood = -990
+	new_likehood =  0
+
 	for (i in 1: as.numeric(options["no_of_epochs"])) {
         cat("Running epoch: ",i,"\n")
         weights_old = weights_new
+
         for(j in 1:length(x_list)) {
-        	#cat("Processing training sequence: ",j,"\n")
             x = x_list[[j]]                    
             y = y_list[[j]]
             if (length(y) != nrow(x)) {
@@ -70,12 +77,10 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
             }
             # if(j==50) {stop("")}
 
-            #Calculate Viterbi Path and y_hat            
             G = compute_g_matrices(x, weights_new, labels)                      
-            #G = compute_g_matrices_train(x, y, weights_new, labels)                                         
             # print(G)
             learning_rate = as.numeric(options["learning_rate"])
-            #collins perceptron
+
             if (training_method == "collins_perceptron")  {
                 yHat = viterbi(G, x, labels)
             	weights_new = update_features(x,y, yHat,weights_new,learning_rate,labels)            	
@@ -96,26 +101,36 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
             else {
             	stop("incorrect training method: ", training_method)
             }
-            #print(yHat)
-            
-            
-            # We need to compute the sum of feature functions twice, first for y and then for yHat
-            # normalize weights so that Gibbs sampling does not have overflow
-            # weights_new = normalize(weights_new)       
-            #break            
+            #-------------------------------------------------------------------------------
+            ## Now compute the likelihood
+            # instance_likelihood = compute_per_instance_likelihood(G,x,y, labels)
+            # new_likehood = new_likehood + instance_likelihood
+            #-------------------------------------------------------------------------------
         }
-        # write the weights after every epoch
-        intermediate_file = paste0(crf_model_file, i)
-    	model = list()
-   		model$weights = weights_new
-    	model$pre_proc_values = pre_proc_values
+        #-------------------------------------------------------------------------------
+        # if(abs(new_likehood - old_likehood) < 0.1 ) {
+        # 	cat("coverged at: " , i, "\n")
+        # 	break
+        # }
+        # cat("old_likehood: ", old_likehood,"\n")
+        # cat("new_likehood: ", new_likehood,"\n")
+        # old_likehood = new_likehood
+        # new_likehood = 0
+        #-------------------------------------------------------------------------------
+
+        # write the model after every epoch
+    	# model = list()
+   		# model$weights = weights_new
+    	# model$pre_proc_values = pre_proc_values
+        #intermediate_file = paste0(crf_model_file, i)
         #save(model,file = intermediate_file)         
-        #check for convergence 
-     	#print(max(weights_old - weights_new) )
-        if (max(abs(weights_old - weights_new)) < 0.001) {
-     		print("coverged at: " , i)
-        	break
-        }
+        
+		# check for weight convergence 
+		# print(max(weights_old - weights_new) )
+		# if (max(abs(weights_old - weights_new)) < 0.001) {
+		# 	print("coverged at: " , i)
+		# 	break
+		# }
     }    
     print(weights_old - weights_new)
     # save the trained feature function weights to a file
@@ -125,6 +140,7 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
     save(model,file=crf_model_file)
     end_time = Sys.time()
     cat("Training time: " , end_time - start_time, "\n")
+    
     if(length(test_y_list) > 0) {
     	return (list(test_x_list,test_y_list))
 	}
@@ -143,10 +159,6 @@ get_scaled_training_data = function (x_list, pre_proc_values, excluded_participa
 		x_list[[i]] = predict(pre_proc_values,x_list[[i]])
 		na_indices = is.na(x_list[[i]])
 		x_list[[i]][na_indices] = 0.0
-		# print(dimnames(x_list[[i]]))
-		# if(!is.na(excluded_participant)) {
-		# 	x_list[[i]] = x_list[[i]][x_list[[i]]["participant" != excluded_participant,]	]
-		# }
 	}
 	return(x_list)
 }

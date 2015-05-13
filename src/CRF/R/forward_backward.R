@@ -25,6 +25,23 @@
 # }
 
 
+compute_per_instance_likelihood = function(G,x,y, labels) {
+    crf_sequence_length = length(y)
+    crf_sequence_length = crf_sequence_length + 1
+    no_of_labels = length(labels)
+    log_alpha = array(0, dim=c(crf_sequence_length, no_of_labels), dimnames = list(1:crf_sequence_length,labels))
+
+    log_alpha[1,] = G["START", , 1]
+    for(i in 2:crf_sequence_length) {
+        for (u in labels) {
+            log_alpha[i,u] = logSumExp(log_alpha [i-1,] + (G[,u,i]))
+        }
+        #print(i)
+    }
+    return (log_alpha[crf_sequence_length,"STOP"])
+}
+
+
 compute_forward_backword_vectors = function(G,x,y, labels) {
     crf_sequence_length = length(y)
     crf_sequence_length = crf_sequence_length + 1

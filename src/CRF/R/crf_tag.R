@@ -11,19 +11,16 @@
 ## options: A dictionary contains values for miscellaneous parameters
 
 crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_prediction_file, options, test_list = NULL) {
-	#weights_new = c()
-    #-----------------------------
+
     model = list()
-    #-----------------------------
 	# This will load weights_new object from the saved training model
 	load(crf_model_file)
-	# crf_weights = weights_new
-    #-----------------------------
     crf_weights = model$weights
     pre_proc_values = model$pre_proc_values
     #print(crf_weights)
-     #-----------------------------
 	feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
+    print(feature_inclusion_list)
+
 	# read training data from file
     if(is.null(test_list)) {        
         cat("Reading from file: ", crf_test_file,"\n")
@@ -31,27 +28,29 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
     } 
 	x_list = test_list[[1]]
 	y_list = test_list[[2]]
-    #-----------------------------
+
     pre_proc_values = get_pre_proc_values(x_list)
     x_list = get_scaled_training_data(x_list, pre_proc_values)
-    #-----------------------------
 
 	# get the template features. These will be combined with indicator functions I(y[i-1]='label1') * I(y[i]='label2') 
 	features = colnames(x_list[[1]])
 	# get the list of labels from the dimension names of the weights array
 	labels = dimnames(crf_weights)[[2]]
+    
     # just in case the feature list from training does not conform
-    crf_weights = crf_weights[,,unlist(features)]
-	predictions = file.path(output_prediction_file)
+    # crf_weights = crf_weights[,,unlist(features)]
+	
+    predictions = file.path(output_prediction_file)
 	if (file.exists( predictions) ) {
       file.remove(output_prediction_file)
     }
+    
     crf_sequence_length = as.numeric(options["crf_sequence_length"])
     overlap_window_length = as.numeric(options["overlap_window_length"])    
- 
     overlapped_predictions = list()
     overlapped_labels = list()
-	cat('prediction,label\n', file=predictions, append=TRUE)	
+	
+    cat('prediction,label\n', file=predictions, append=TRUE)	
     ii = 0
     for(j in 1:length(x_list)) {
         x = x_list[[j]]
@@ -65,10 +64,10 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
         G = compute_g_matrices(x, crf_weights, labels)
         #print(G)
  		yHat = viterbi(G, x, labels) 
-        print(x)
-        print (yHat)
-        print("actual y")
-        print (y)    
+        # print(x)
+        # print (yHat)
+        # print("actual y")
+        # print (y)    
         # --------------------------------------------------------------------
         for(i in 1:length(yHat)) {
             cat(yHat[i], y[i], sep=",", file=predictions, append=TRUE)

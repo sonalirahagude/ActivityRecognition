@@ -1,10 +1,10 @@
 # GPS related features
 #lat
 #lon
-#snrUsed
-#snrView
-#nsatUsed
-#nsatView
+snrUsed
+snrView
+nsatUsed
+nsatView
 #speed
 #distance
 #ele
@@ -22,14 +22,14 @@ net_to_total_distance_ratio
 
 
 # Difference features
-#lat_1
-#lat_2
-#lon_1
-#lon_2
-#speed_1
-#speed_2
-#elevationDelta_1
-#elevationDelta_2
+lat_1
+lat_2
+lon_1
+lon_2
+speed_1
+speed_2
+elevationDelta_1
+elevationDelta_2
 
 # Accelerometer related features
 mean
