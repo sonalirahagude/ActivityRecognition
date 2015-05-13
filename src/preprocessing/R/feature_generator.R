@@ -172,7 +172,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 		while(seq_end < max_seq_end) {
 			#---------------------
 			#if(is_immediate_data_point(plain_features[seq_end, ]$dateTime, plain_features[seq_end + 1, ]$dateTime, date_format, window_size) )  {
-			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, window_size) )  {
+			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, 60) )  {
 			#---------------------
 				seq_end = seq_end + 1
 			} else {
@@ -235,8 +235,9 @@ read_from_file = function (file) {
 }
 
 # Checks if two data points contiguous in the input file are contiguous in time too
-is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, window_size) {
-	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") )== window_size) {
+is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, gap_threshold) {
+	#if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") )== window_size) {
+	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") ) < gap_threshold) {
 		return(TRUE)
 	} 
 	return(FALSE)

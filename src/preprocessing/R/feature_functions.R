@@ -103,6 +103,38 @@ net_to_total_distance_ratio = function(seq, position, labels, options = NULL) {
     }    
 }
 
+
+# no of changes in directions
+direction_change_count = function(seq, position, labels, options = NULL) {
+    count = 0
+    if ("lat" %in% colnames(seq) & "lon" %in% colnames(seq)) {
+        seq_matrix = as.matrix(seq[c("lat", "lon")])
+
+        lat0 = "NULL"
+        lon0 = "NULL"
+        lat1 = "NULL"
+        lon1 = "NULL"        
+        for (i in seq(1:nrow(seq_matrix))) {
+            lat0  = lat1
+            lon0 = lon1
+            lat1 = seq_matrix[i,1]
+            lon1 = seq_matrix[i,2]
+            if (lat0 == "NULL" & lon0 == "NULL" ) {
+                next
+            }
+
+            if(sign(as.numeric(lat1)) ==  sign(as.numeric(lat0)) && sign(as.numeric(lon0)) ==  sign(as.numeric(lon1)) )  {
+            }
+            else {
+                count = count + 1
+            }
+        }
+    } 
+    return(count)
+}
+
+
+
 # add functions that simply return value of the interested attribute without any processing, can read from a list
 plain_features = function(seq, position, labels, options = NULL) {
     plain_features_file = options[['plain_features_list']]
