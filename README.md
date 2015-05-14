@@ -38,3 +38,10 @@
 ## Now check crf.model.friendly file in the same directory. It will give a summary of the trained CRF model
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Exploratory Data Analysis
+## Running label composition
+source()
+count_labels = function(label_dir, output_file, labels, names = NULL) {
+

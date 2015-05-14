@@ -1,17 +1,17 @@
 # GPS related features
 #lat
 #lon
-#snrUsed
+snrUsed
 #snrView
-#nsatUsed
+nsatUsed
 #nsatView
-#speed
-#distance
-#ele
+speed
+distance
+ele
 elevationDelta
 
 # overall features
-no_of_pauses
+#no_of_pauses
 average_speed
 sd_speed
 coefficient_of_variation

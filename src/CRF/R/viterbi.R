@@ -18,7 +18,6 @@ viterbi = function (G, x, labels)  {
             }
         }
     }
-    print(U)
     #find the best sequence from U now,
     yHat = array(0,dim=crf_sequence_length)
     max_index = which.max(U[crf_sequence_length,])

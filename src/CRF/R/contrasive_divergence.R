@@ -28,18 +28,13 @@ contrasive_divergence = function(G, y, labels, gibbs_sampling_rounds) {
             no_of_labels = length(labels)
             p = array(0, dim=c(crf_sequence_length, no_of_labels), dimnames = list(1:crf_sequence_length,labels))
             #now, compute for every possible value of the tag at position i
-            for (u in labels ) {
-                # print(i)
-                # print(u)
-                # print(label_prev)
-                # print(label_next)
-                # print(G[label_prev, u, i])
-                # print(G[u, label_next, i+1])
-                # calculate the log of the numerator
-                p[i,u] = (G[label_prev, u, i]) + (G[u, label_next, i+1])                                                        
-                # print(p[i,u])
-                # print(sum)
-            }
+            # for (u in labels ) {
+            #     # calculate the log of the numerator
+            #     p[i,u] = (G[label_prev, u, i]) + (G[u, label_next, i+1])                                                                    
+            # }
+            # calculate the log of the numerator
+            p[i,] = (G[label_prev, , i]) + (G[, label_next, i+1])                                                                    
+
             # now use the log sum exp trick to actually calculate the probabilities
             lse = logSumExp(p[i,])
             # print(lse)

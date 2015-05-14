@@ -34,7 +34,7 @@ options = c('no_of_epochs' = no_of_epochs, 'learning_rate' = learning_rate, 'gib
 labels = c("StandingMoving", "StandingStill","Sedentary","Walking","Biking","Vehicle")
 
 crf_input_file_name = paste0('../../../preprocessing/R/test/results/crf_feature_',train_participant)
-crf_input_file_name = paste0 (crf_input_file_name, '_15_seqLength_0_overlap')
+crf_input_file_name = paste0 (crf_input_file_name, '_30_seqLength_0_overlap')
 crf_model_file_name = paste0('results/crf_',train_participant,'_model_',training_method,'_',no_of_epochs,'epochs_',learning_rate,'LR')
 
 
@@ -46,17 +46,17 @@ if(train_participant == "all" && exclude_test) {
 	options$excluded_participant = test_participant
 	crf_model_file_name = paste0(crf_model_file_name,'_',test_participant,"excluded")
 } 
-crf_model_file_name = paste0 (crf_model_file_name, '_15_seqLength_0_overlap')
+crf_model_file_name = paste0 (crf_model_file_name, '_30_seqLength_0_overlap')
 
 
 #crf_test_file_name = paste0('../../../preprocessing/R/test/results/crf_feature_',test_participant)
-crf_test_file_name = paste0 ('../../../preprocessing/R/test/results/crf_feature_all_15_seqLength_0_overlap_',test_participant)
+crf_test_file_name = paste0 ('../../../preprocessing/R/test/results/crf_feature_all_30_seqLength_0_overlap_',test_participant)
 
 output_prediction_file_name = paste0('results/',train_participant,'_train_',test_participant,'_test_',training_method,'_',no_of_epochs,'epochs_',learning_rate,'LR')
 if(gibbs_sampling_rounds != "NULL") {
 	output_prediction_file_name = paste0(output_prediction_file_name,'_',gibbs_sampling_rounds,"rounds")
 }
-output_prediction_file_name = paste0 (output_prediction_file_name, '_15_seqLength_0_overlap')
+output_prediction_file_name = paste0 (output_prediction_file_name, '_30_seqLength_0_overlap')
 
 
 test_list = NULL

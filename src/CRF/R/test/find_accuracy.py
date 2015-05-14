@@ -18,8 +18,8 @@ def build_confusion_matrix(prediction_file):
 
 if __name__ == '__main__':
 	prediction_file = sys.argv[1]
-	accuracy_file = sys.argv[2]
-	fa = open(accuracy_file,'a+')
+	#accuracy_file = sys.argv[2]
+	#fa = open(accuracy_file,'a+')
 	f = open(prediction_file,'r')  
 	accuracy = 0
 	total = 0
@@ -34,6 +34,8 @@ if __name__ == '__main__':
 	print "accuracy: " + str(accuracy*1.0/total*100.0)
 	#fa.write(str(accuracy*1.0/total*100.0))
 	df = build_confusion_matrix(sys.argv[1])
-	df.to_csv(accuracy_file)
+	#fa.write(df)
+	print df
+#	df.to_csv(accuracy_file)
 	print("-------------------------------------------------------------------------------------------------------------------------")
-	f.close()
+	#f.close()

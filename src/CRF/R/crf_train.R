@@ -18,14 +18,14 @@ get_feature_inclusion_list = function(file) {
 
 # Train the weights for the defined feature functions
 # Arguments:
-## crf_input_file: file containing the crf sequences along with the labels. Each line is of the form <label, feature1, feature2,...featuren>
+## crf_input_file: files containing the crf sequences along with the labels. Each line is of the form <label, feature1, feature2,...featuren>
 ##                 each sequence is enclosed between tags #START and #END
 ## feature_list_file: contains list of names of feature functions to be used to generate features
 ## labels: list of possible labels for the domain
 ## crf_model_file: filename to save the model
 ## options: A dictionary contains values for learning parameters like no_of_epochs, learning_rate etc.
 
-crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, options) {
+crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file, options) {
 	
 	feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
 	# read training data from file
@@ -33,7 +33,7 @@ crf_train = function(crf_input_file, feature_list_file, labels, crf_model_file, 
 	excluded_participant = options["excluded_participant"]
 
 	#--------------------------------------------------
-	train_list = get_training_data(crf_input_file, feature_inclusion_list, excluded_participant)
+	train_list = get_training_data(crf_input_files, feature_inclusion_list, excluded_participant)
 
 	#save(train_list,file='training_list_all')
 
@@ -164,82 +164,84 @@ get_scaled_training_data = function (x_list, pre_proc_values, excluded_participa
 }
 
 # Reads the training data from the file and returns a list of dataframes, each corresponding to one CRF sequence x. Also, returns a parallel list of label sequences.
-get_training_data = function(crf_input_file, feature_inclusion_list, excluded_participant = NA) {
-	conn = file(crf_input_file, open = 'r')
-	# Read the headers and filter features
-	headers = readLines(conn, n= 1, warn = FALSE)
-	index = 1
-	filtered_headers = character()
-	filtered_indices = numeric()
-	# check the features to be included
-	for(feature_name in unlist(strsplit(headers,"\t"))) {
-		# ignore headers and new lines
-    	if(startsWith(trim(feature_name), "#") || trim(feature_name) == "")
-    		next
+get_training_data = function(crf_input_files, feature_inclusion_list, excluded_participant = NA) {
 
-		if(feature_name %in% feature_inclusion_list) {
-			filtered_headers = append(filtered_headers,feature_name)
-			filtered_indices = append(filtered_indices,index)
-		}
-		index = index + 1
-	}
-
-	# Start reading the data and create dataframes for each sequence. Final output will be list of dataframes and list of output label vectors
 	all_x = list()
 	all_y = list()
 	test_x = list()
 	test_y = list()
-	count = 1
-	#x = data.frame(matrix(ncol = length(filtered_indices), nrow = 0))
-	#print(typeof(x))
-	x = array(0, dim = c(0,length(filtered_indices)))
-	y = character()
-	line=""
-	colnames(x) = filtered_headers
 	ii = 1
-	line = readLines(conn, n= 1, warn = FALSE)
-	while (length(line) > 0) {
-		if(startsWith(line, "#START", trim=TRUE, ignore.case=FALSE)) {	
+	count = 1
+
+	for(crf_input_file in crf_input_files) {
+		cat("Reading from: ", crf_input_file, "\n")
+		conn = file(crf_input_file, open = 'r')
+		# Read the headers and filter features
+		headers = readLines(conn, n= 1, warn = FALSE)
+		index = 1
+		filtered_headers = character()
+		filtered_indices = numeric()
+		# check the features to be included
+		for(feature_name in unlist(strsplit(headers,"\t"))) {
+			# ignore headers and new lines
+	    	if(startsWith(trim(feature_name), "#") || trim(feature_name) == "")
+	    		next
+
+			if(feature_name %in% feature_inclusion_list) {
+				filtered_headers = append(filtered_headers,feature_name)
+				filtered_indices = append(filtered_indices,index)
+			}
+			index = index + 1
 		}
-		else if(startsWith(line, "#END", trim=TRUE, ignore.case=FALSE)) {	
-			# create a new data frame
-			colnames(x) = filtered_headers
-			#x = scale(x,center=FALSE,scale=TRUE)
-			#print(typeof(x))
-			# scale will return NaNs for columns with no variance, set those values to 0
-			#x = replace(x,is.na(x),0.0)
-			# If the participant is the excluded participant, then skip
-			#cat("excluded_participant: " , unlist(excluded_participant),", participant: ",unlist(participant), "\n")
-			if(!is.na(excluded_participant) && participant == excluded_participant) {			
-				cat("Excluding " , participant, "\n")
-				test_x[[ii]] = x
-				test_y[[ii]] = y
-				ii = ii + 1
+
+		# Start reading the data and create dataframes for each sequence. Final output will be list of dataframes and list of output label vectors
+		x = array(0, dim = c(0,length(filtered_indices)))
+		y = character()
+		line=""
+		colnames(x) = filtered_headers
+		line = readLines(conn, n= 1, warn = FALSE)
+		while (length(line) > 0) {
+			if(startsWith(line, "#START", trim=TRUE, ignore.case=FALSE)) {	
+			}
+			else if(startsWith(line, "#END", trim=TRUE, ignore.case=FALSE)) {	
+				# create a new data frame
+				colnames(x) = filtered_headers
+				#x = scale(x,center=FALSE,scale=TRUE)
+				#print(typeof(x))
+				# scale will return NaNs for columns with no variance, set those values to 0
+				#x = replace(x,is.na(x),0.0)
+				# If the participant is the excluded participant, then skip
+				#cat("excluded_participant: " , unlist(excluded_participant),", participant: ",unlist(participant), "\n")
+				if(!is.na(excluded_participant) && participant == excluded_participant) {			
+					cat("Excluding " , participant, "\n")
+					test_x[[ii]] = x
+					test_y[[ii]] = y
+					ii = ii + 1
+					x = array(0, dim = c(0,length(filtered_indices)))
+					y = character()
+					line = readLines(conn, n= 1, warn = FALSE)
+					next
+				}
+				# do not use append here, it does some funny business while appending the dataframe 
+				all_x[[count]] = x
+				all_y[[count]] = y
+				count = count + 1
 				x = array(0, dim = c(0,length(filtered_indices)))
 				y = character()
-				line = readLines(conn, n= 1, warn = FALSE)
-				next
 			}
-			# do not use append here, it does some funny business while appending the dataframe 
-			all_x[[count]] = x
-			all_y[[count]] = y
-			count = count + 1
-			x = array(0, dim = c(0,length(filtered_indices)))
-			y = character()
+			else {
+				feature_values = unlist(strsplit(trim(line), "\t"))
+				# If the participant is the excluded participant, then skip
+				participant = feature_values[2]
+				
+
+				feature_values_filtered = feature_values[filtered_indices]						
+				x = rbind(x,as.numeric(feature_values_filtered))
+				y = append(y,feature_values[1])
+			}		
+			line = readLines(conn, n= 1, warn = FALSE)
 		}
-		else {
-			feature_values = unlist(strsplit(trim(line), "\t"))
-			# If the participant is the excluded participant, then skip
-			participant = feature_values[2]
-			
-
-			feature_values_filtered = feature_values[filtered_indices]						
-			x = rbind(x,as.numeric(feature_values_filtered))
-			y = append(y,feature_values[1])
-		}		
-		line = readLines(conn, n= 1, warn = FALSE)
 	}
-
 	print(ii)
 	close(conn)
 	return (list(all_x,all_y,test_x,test_y))

@@ -11,6 +11,7 @@ total_distance
 net_distance
 net_to_total_distance_ratio
 
+direction_change_count
 
 # File to mention plain features
 plain_features

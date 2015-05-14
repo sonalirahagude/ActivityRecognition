@@ -1,8 +1,9 @@
 # set the working directory to the directory of this folder
 print("test")
+
+setwd('/home/sonali/git/ActivityRecognition/src/preprocessing/R/test')
 print(getwd())
 source('../setup.R')
-
 
 # no_of_steps is specific to diff features
 options = list(plain_features_list = "../plain_features_list", difference_features_list = '../diff_features_list', no_of_steps = 2 )	
@@ -12,7 +13,7 @@ options = list(plain_features_list = "../plain_features_list", difference_featur
 
 
 generate_sequences_from_raw_data( c("../data/TREC_ML.csv","../data/GT3X+Raw_Features_15"), "../data/AnnotatedFilesNew/",
- 	"../feature_list", "results/crf_feature_all_20_seqLength_5_overlap_1_min_seq_threshold_dummy", crf_sequence_length= 20, overlap_window_length = 5, window_size = 15, options )
+ 	"../feature_list", "results/crf_feature_all_4_seqLength_0_overlap", crf_sequence_length= 4, overlap_window_length = 0, window_size = 15, options )
 
 
 
