@@ -11,14 +11,14 @@ ele
 elevationDelta
 
 # overall features
-#no_of_pauses
-#average_speed
-#sd_speed
-#coefficient_of_variation
-#total_distance
-#net_distance
-#net_to_total_distance_ratio
-#direction_change_count
+no_of_pauses
+average_speed
+sd_speed
+coefficient_of_variation
+total_distance
+net_distance
+net_to_total_distance_ratio
+direction_change_count
 
 # Shorter custom features, do not compute over the entire sequence but just a subset of it
 

@@ -39,8 +39,7 @@ compute_g_matrices = function(x,weights, labels) {
     no_of_labels = length(labels)
     crf_sequence_length = nrow(x)
     x = rbind(x,x[crf_sequence_length,])
-    crf_sequence_length = crf_sequence_length + 1
-
+    crf_sequence_length = crf_sequence_length + 1    
     #Creates a 3 dimensional G matrix, total 'crf_sequence_length' matrices each of size no_of_labels*no_of_labels
     G = array(0,dim=c(no_of_labels, no_of_labels, crf_sequence_length),dimnames=(list(labels, labels, 1:crf_sequence_length)))
         # We need to calculate all the cells for the prediction part, so that all possible combinations are available while inferring the mostly likely sequence
@@ -82,9 +81,7 @@ compute_g_matrices_train = function(x,y,weights, labels) {
             label_cur = y[i]
             G[label_prev,label_cur,i] = compute_position_feature_values(x[i,],label_cur,label_prev,weights)
         }
-        #print(typeof(x))
-        #print(x)
-        #print(i)            
+          
     }
     return (G)
 }

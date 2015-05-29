@@ -5,6 +5,10 @@ generate_header = function(feature_list_file, output_feature_file, options) {
 	conn = file(feature_list_file,open = 'r')
 	feature_functions = readLines(conn)	
 	output_file = file.path(output_feature_file)
+	if (file.exists( output_file )) {
+      file.remove(output_file)
+    }
+
 	token_count = 0
 	cat("label", "\t", sep="", file=output_feature_file, append=TRUE)		
 	cat("participant", "\t", sep="", file=output_feature_file, append=TRUE)		

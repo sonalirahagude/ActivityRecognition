@@ -1,0 +1,257 @@
+[1] "/home/sonali/git/ActivityRecognition/src/CRF/R/test"
+Reading from:  ../../../preprocessing/R/test/results/crf_feature_all_15_seqLength_0_overlap 
+[1] 1
+[1] "got training data"
+Calculating means for centering
+Calculating standard deviations for scaling
+[1] "got scaled training data"
+[1] "Starting CRF training"
+Running epoch:  1 
+applying l1 regularization 
+old_likehood:  -990 
+new_likehood:  167307.7 
+Running epoch:  2 
+applying l1 regularization 
+old_likehood:  167307.7 
+new_likehood:  262201294968 
+Running epoch:  3 
+applying l1 regularization 
+old_likehood:  262201294968 
+new_likehood:  281435594118 
+Running epoch:  4 
+applying l1 regularization 
+old_likehood:  281435594118 
+new_likehood:  289560305713 
+Running epoch:  5 
+applying l1 regularization 
+old_likehood:  289560305713 
+new_likehood:  272740074905 
+Running epoch:  6 
+applying l1 regularization 
+old_likehood:  272740074905 
+new_likehood:  286314123513 
+Running epoch:  7 
+applying l1 regularization 
+old_likehood:  286314123513 
+new_likehood:  290494442918 
+Running epoch:  8 
+applying l1 regularization 
+old_likehood:  290494442918 
+new_likehood:  323537194667 
+Running epoch:  9 
+applying l1 regularization 
+old_likehood:  323537194667 
+new_likehood:  328408703378 
+Running epoch:  10 
+applying l1 regularization 
+old_likehood:  328408703378 
+new_likehood:  342188701323 
+Running epoch:  11 
+applying l1 regularization 
+old_likehood:  342188701323 
+new_likehood:  379056434610 
+Running epoch:  12 
+applying l1 regularization 
+old_likehood:  379056434610 
+new_likehood:  390281873149 
+Running epoch:  13 
+applying l1 regularization 
+old_likehood:  390281873149 
+new_likehood:  402441831793 
+Running epoch:  14 
+applying l1 regularization 
+old_likehood:  402441831793 
+new_likehood:  425771495593 
+Running epoch:  15 
+applying l1 regularization 
+old_likehood:  425771495593 
+new_likehood:  435508652789 
+Running epoch:  16 
+applying l1 regularization 
+old_likehood:  435508652789 
+new_likehood:  452111143565 
+Running epoch:  17 
+applying l1 regularization 
+old_likehood:  452111143565 
+new_likehood:  4.6712e+11 
+Running epoch:  18 
+applying l1 regularization 
+old_likehood:  4.6712e+11 
+new_likehood:  483159228877 
+Running epoch:  19 
+applying l1 regularization 
+old_likehood:  483159228877 
+new_likehood:  500562535022 
+Running epoch:  20 
+applying l1 regularization 
+old_likehood:  500562535022 
+new_likehood:  520328424423 
+Running epoch:  21 
+applying l1 regularization 
+old_likehood:  520328424423 
+new_likehood:  533126651447 
+Running epoch:  22 
+applying l1 regularization 
+old_likehood:  533126651447 
+new_likehood:  551865129527 
+Running epoch:  23 
+applying l1 regularization 
+old_likehood:  551865129527 
+new_likehood:  568920823878 
+Running epoch:  24 
+applying l1 regularization 
+old_likehood:  568920823878 
+new_likehood:  587021699140 
+Running epoch:  25 
+applying l1 regularization 
+old_likehood:  587021699140 
+new_likehood:  604121357209 
+Running epoch:  26 
+applying l1 regularization 
+old_likehood:  604121357209 
+new_likehood:  6.23204e+11 
+Running epoch:  27 
+applying l1 regularization 
+old_likehood:  6.23204e+11 
+new_likehood:  641307066442 
+Running epoch:  28 
+applying l1 regularization 
+old_likehood:  641307066442 
+new_likehood:  658338865880 
+Running epoch:  29 
+applying l1 regularization 
+old_likehood:  658338865880 
+new_likehood:  676017384103 
+Running epoch:  30 
+applying l1 regularization 
+old_likehood:  676017384103 
+new_likehood:  694792482054 
+Running epoch:  31 
+applying l1 regularization 
+old_likehood:  694792482054 
+new_likehood:  713556102023 
+Running epoch:  32 
+applying l1 regularization 
+old_likehood:  713556102023 
+new_likehood:  732767785294 
+Running epoch:  33 
+applying l1 regularization 
+old_likehood:  732767785294 
+new_likehood:  752141365828 
+Running epoch:  34 
+applying l1 regularization 
+old_likehood:  752141365828 
+new_likehood:  769324367222 
+Running epoch:  35 
+applying l1 regularization 
+old_likehood:  769324367222 
+new_likehood:  788131679896 
+Running epoch:  36 
+applying l1 regularization 
+old_likehood:  788131679896 
+new_likehood:  806162076502 
+Running epoch:  37 
+applying l1 regularization 
+old_likehood:  806162076502 
+new_likehood:  824411820504 
+Running epoch:  38 
+applying l1 regularization 
+old_likehood:  824411820504 
+new_likehood:  843571495645 
+Running epoch:  39 
+applying l1 regularization 
+old_likehood:  843571495645 
+new_likehood:  861906877581 
+Running epoch:  40 
+applying l1 regularization 
+old_likehood:  861906877581 
+new_likehood:  878243921388 
+Running epoch:  41 
+applying l1 regularization 
+old_likehood:  878243921388 
+new_likehood:  897247317572 
+Running epoch:  42 
+applying l1 regularization 
+old_likehood:  897247317572 
+new_likehood:  915858429066 
+Running epoch:  43 
+applying l1 regularization 
+old_likehood:  915858429066 
+new_likehood:  935562855247 
+Running epoch:  44 
+applying l1 regularization 
+old_likehood:  935562855247 
+new_likehood:  9.54121e+11 
+Running epoch:  45 
+applying l1 regularization 
+old_likehood:  9.54121e+11 
+new_likehood:  973224247980 
+Running epoch:  46 
+applying l1 regularization 
+old_likehood:  973224247980 
+new_likehood:  993845120830 
+Running epoch:  47 
+applying l1 regularization 
+old_likehood:  993845120830 
+new_likehood:  1.011534e+12 
+Running epoch:  48 
+applying l1 regularization 
+old_likehood:  1.011534e+12 
+new_likehood:  1.028261e+12 
+Running epoch:  49 
+applying l1 regularization 
+old_likehood:  1.028261e+12 
+new_likehood:  1.047076e+12 
+Running epoch:  50 
+applying l1 regularization 
+old_likehood:  1.047076e+12 
+new_likehood:  1.065132e+12 
+Running epoch:  51 
+applying l1 regularization 
+old_likehood:  1.065132e+12 
+new_likehood:  1.083876e+12 
+Running epoch:  52 
+applying l1 regularization 
+old_likehood:  1.083876e+12 
+new_likehood:  1.101171e+12 
+Running epoch:  53 
+applying l1 regularization 
+old_likehood:  1.101171e+12 
+new_likehood:  1.119718e+12 
+Running epoch:  54 
+applying l1 regularization 
+old_likehood:  1.119718e+12 
+new_likehood:  1.139271e+12 
+Running epoch:  55 
+applying l1 regularization 
+old_likehood:  1.139271e+12 
+new_likehood:  1.158327e+12 
+Running epoch:  56 
+applying l1 regularization 
+old_likehood:  1.158327e+12 
+new_likehood:  1.178052e+12 
+Running epoch:  57 
+applying l1 regularization 
+old_likehood:  1.178052e+12 
+new_likehood:  1.1979e+12 
+Running epoch:  58 
+applying l1 regularization 
+old_likehood:  1.1979e+12 
+new_likehood:  1.217232e+12 
+Running epoch:  59 
+applying l1 regularization 
+old_likehood:  1.217232e+12 
+new_likehood:  1.235265e+12 
+Running epoch:  60 
+applying l1 regularization 
+old_likehood:  1.235265e+12 
+new_likehood:  1.254659e+12 
+Running epoch:  61 
+applying l1 regularization 
+old_likehood:  1.254659e+12 
+new_likehood:  1.273162e+12 
+Running epoch:  62 
+applying l1 regularization 
+old_likehood:  1.273162e+12 
+new_likehood:  1.291923e+12 
+Running epoch:  63 

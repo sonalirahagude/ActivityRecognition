@@ -4,7 +4,7 @@
 #The G matrix's last dimension is the length of the sentence
 viterbi = function (G, x, labels)  {
 	crf_sequence_length = nrow(x)
-
+    #print("In Viterbi")
     #U represents the score of the best sequence of tags from position 1 to k
     U = array(0, dim = c(crf_sequence_length,length(labels)),dimnames = list(1:crf_sequence_length, labels) )
     # BASE CASE: U(1,v) = g_1(START,v);
@@ -18,6 +18,7 @@ viterbi = function (G, x, labels)  {
             }
         }
     }
+    #print(U)
     #find the best sequence from U now,
     yHat = array(0,dim=crf_sequence_length)
     max_index = which.max(U[crf_sequence_length,])
@@ -42,6 +43,7 @@ viterbi = function (G, x, labels)  {
         # print(max_label)
         # #stop("")
         if(max_label == 'START' || max_label == 'STOP') {
+            #cat("Got ", max_label, ". Predicting ", yHat[i+1], "for i=",i,"\n")
     		# predicting the label of the next timestep
     		yHat[i] = yHat[i+1]
 	    }

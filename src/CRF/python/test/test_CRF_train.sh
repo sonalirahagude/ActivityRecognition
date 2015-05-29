@@ -30,11 +30,11 @@
 #python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_SDU085 crf.SDU085.speed_only.model
 #~/git/crfsuite-0.12/frontend/crfsuite dump crf.SDU085.speed_only.model > crf.SDU085.model.speed_only.friendly
 
-python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/crf_feature_all crf.all.model
+python ../crf_train.py ../feature_list_all ../../../preprocessing/R/test/results/crf_feature_all_15_seqLength_0_overlap crf.all.model
 ~/git/crfsuite-0.12/frontend/crfsuite dump crf.all.model > crf.all.model.friendly
 
-python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_all crf.all.speed_only.model
-~/git/crfsuite-0.12/frontend/crfsuite dump crf.all.speed_only.model > crf.all.speed_only.model.friendly
+# python ../crf_train.py ../feature_list ../../../preprocessing/R/test/crf_feature_all crf.all.speed_only.model
+# ~/git/crfsuite-0.12/frontend/crfsuite dump crf.all.speed_only.model > crf.all.speed_only.model.friendly
 
 
 

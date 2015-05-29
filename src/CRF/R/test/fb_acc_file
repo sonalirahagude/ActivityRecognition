@@ -1,0 +1,4 @@
+epochs,lr,reg_method,reg_constant,avg_acc
+10 , 0.1 , l1 , 1000 , 53.03797 
+epochs,lr,reg_method,reg_constant,avg_acc
+50 , 0.1 , l1 , 1000 , 53.05916 

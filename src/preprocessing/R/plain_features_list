@@ -10,7 +10,7 @@ distance
 ele
 elevationDelta
 
-
+timestamp
 # Accelerometer related features
 mean
 sd

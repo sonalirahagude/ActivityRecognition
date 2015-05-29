@@ -113,3 +113,42 @@ compute_expectation = function(alpha, beta, G, x, feature, labels) {
     }
     return (sum)
 }
+
+
+
+compute_expectation_all_features = function(alpha, beta, G, x, labels) {
+    crf_sequence_length = nrow(x)
+    sum = 0.0
+    # print(G)
+    for(i in 1: crf_sequence_length) {
+        for(u in labels) {
+            for (v in labels) {
+                if(i == crf_sequence_length) {
+                        val = x[i-1,]*alpha[i-1,u]/alpha[crf_sequence_length,"STOP"]*exp(G[u,v,i])
+                        sum = sum + val
+                        #cat ("feature: " , feature, ", i: " , i, ", u: " , u, ", ", "v: " , v, ", x[i,feature]: " , x[i-1,feature], ", alpha[i-1,u]: " , alpha[i-1,u], ", G[u,v,i]: " , G[u,v,i] ,  ", sum: ", sum, "\n"  )
+                }
+                else if(i == 1 ) {
+                        val = x[i,]* beta[v, i]/alpha[crf_sequence_length,"STOP"]*exp(G[u,v,i])
+                        sum = sum + val
+                        #cat ("feature: " , feature, ", i: " , i, ", u: " , u, ", ", "v: " , v, ", x[i,feature]: " , x[i,feature],  ", G[u,v,i]: " , G[u,v,i] , ", beta[v,i]: ", beta[v,i], ", sum: ", sum, "\n"  )
+                }
+                else {
+                    val = x[i,]*alpha[i-1,u]*beta[v, i] /alpha[crf_sequence_length,"STOP"] *exp(G[u,v,i])
+                    sum = sum + val
+                    #cat ("feature: " , feature, ", i: " , i, ", u: " , u, ", ", "v: " , v, ", x[i,feature]: " , x[i,feature], ", alpha[i-1,u]: " , alpha[i-1,u], ", G[u,v,i]: " , G[u,v,i] , ", beta[v,i]: ", beta[v,i], ", sum: ", sum, "\n"  )
+                }
+            }
+        }    
+    }
+    #sum =sum / alpha[crf_sequence_length,"STOP"]
+    #print(sum)    
+    if(is.nan(sum) || is.infinite(sum)) {
+        print(alpha)
+        print(beta)
+        print(G)
+        #print(feature)
+        stop("")
+    }
+    return (sum)
+}

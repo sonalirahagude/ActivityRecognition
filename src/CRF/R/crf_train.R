@@ -56,29 +56,38 @@ crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file,
 	# Append START and STOP to the list of labels
 	labels = append(labels, c("START","STOP"))
 	# Weights is a 3 dimensional matrix, 
+	total_no_of_weights = length(labels)^2 * length(features)
+	# initialize the weight array at random
+	#weights_new = array(runif(total_no_of_weights,-10000,10000),dim=c(length(labels), length(labels), length(features)),dimnames=(list(labels, labels, features)))
 	weights_new = array(0,dim=c(length(labels), length(labels), length(features)),dimnames=(list(labels, labels, features)))
-
 	start_time = Sys.time()
 	print("Starting CRF training")
 
 	old_likehood = -990
 	new_likehood =  0
-
+	regularization_constant = as.numeric(options["regularization_constant"])
+	regularization_method = options["regularization_method"]
 	for (i in 1: as.numeric(options["no_of_epochs"])) {
         cat("Running epoch: ",i,"\n")
         weights_old = weights_new
 
-        for(j in 1:length(x_list)) {
+        #generate permutation 
+        permutation = sample(1:length(x_list), length(x_list))
+        for(j in permutation) {
             x = x_list[[j]]                    
             y = y_list[[j]]
             if (length(y) != nrow(x)) {
                 cat('Error with Preprocessing, lengths x and y dont match\n');          
                 return
             }
-            # if(j==50) {stop("")}
-
-            G = compute_g_matrices(x, weights_new, labels)                      
-            # print(G)
+            
+            G = compute_g_matrices(x, weights_old, labels)                      
+            #G = compute_g_matrices(x, weights_new, labels)                      
+             
+             # if(i==2) {
+             # 	print(weights_new)
+             # 	stop("")
+             # }
             learning_rate = as.numeric(options["learning_rate"])
 
             if (training_method == "collins_perceptron")  {
@@ -88,15 +97,18 @@ crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file,
             else if(training_method == "contrasive_divergence") {           
             	gibbs_sampling_rounds = as.numeric(options["gibbs_sampling_rounds"])
             	yHat = contrasive_divergence(G, y, labels, gibbs_sampling_rounds)
-            	weights_new = update_features(x, y, yHat, weights_new,learning_rate,labels)
+            	# no regularization
+            	 weights_new = update_features_fast(x, y, yHat, weights_new,learning_rate,labels)
+            	# L1 regularization
+            	# weights_new = update_features_fast_with_l1_reguralization(x, y, yHat, weights_new,learning_rate,labels, regularization_constant)
+            	# L2 regularization  
+            	# weights_new = update_features_fast_with_l2_reguralization(x, y, yHat, weights_new,learning_rate,labels, 1/regularization_constant^2)
             }
             else if(training_method == "forward_backward") {
             	alpha_beta = compute_forward_backword_vectors(G,x,y, labels)
             	alpha = alpha_beta[[1]]
             	beta = alpha_beta[[2]]
-            	#print(weights_new)
-        	    weights_new = update_features_expectation(G, x, y, weights_new, learning_rate, labels, alpha, beta) 
-        	    weights_new = normalize(weights_new) 
+        	    weights_new = update_features_expectation_fast(G, x, y, weights_new, learning_rate, labels, alpha, beta) 
             }
             else {
             	stop("incorrect training method: ", training_method)
@@ -107,6 +119,18 @@ crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file,
             # new_likehood = new_likehood + instance_likelihood
             #-------------------------------------------------------------------------------
         }
+        # apply regularization
+        # L1 regularization
+        if(regularization_method == "l1") {
+        	weights_new = weights_new - regularization_constant    
+        	cat("applying l1 regularization", "\n")
+        }
+   		# L2 regularization
+   		else if(regularization_method == "l2") {
+        	weights_new = weights_new - weights_new/(regularization_constant^2)
+        	cat("applying l2 regularization", "\n")
+   		}
+            	
         #-------------------------------------------------------------------------------
         # if(abs(new_likehood - old_likehood) < 0.1 ) {
         # 	cat("coverged at: " , i, "\n")
@@ -118,19 +142,20 @@ crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file,
         # new_likehood = 0
         #-------------------------------------------------------------------------------
 
-        # write the model after every epoch
-    	# model = list()
-   		# model$weights = weights_new
-    	# model$pre_proc_values = pre_proc_values
-        #intermediate_file = paste0(crf_model_file, i)
-        #save(model,file = intermediate_file)         
-        
+        #write the model after every epoch
+    	if(i%%10 == 0 ) {
+	    	model = list()
+	   		model$weights = weights_new
+	    	model$pre_proc_values = pre_proc_values
+	        intermediate_file = paste0(crf_model_file, i)
+	        save(model,file = intermediate_file)         
+        }
 		# check for weight convergence 
-		# print(max(weights_old - weights_new) )
-		# if (max(abs(weights_old - weights_new)) < 0.001) {
-		# 	print("coverged at: " , i)
-		# 	break
-		# }
+		print(max(weights_old - weights_new) )
+		if (max(abs(weights_old - weights_new)) < 0.1) {
+			print("coverged at: " , i)
+			break
+		}
     }    
     print(weights_old - weights_new)
     # save the trained feature function weights to a file
@@ -150,7 +175,7 @@ crf_train = function(crf_input_files, feature_list_file, labels, crf_model_file,
 
 get_pre_proc_values = function (x_list) {
 	single_df = do.call("rbind",x_list)
-	pre_proc_values = preProcess(single_df, method = c('center','scale'),verbose=TRUE)
+	pre_proc_values = preProcess(single_df, method = c('range'),verbose=TRUE)
 	return (pre_proc_values)
 }
 
@@ -206,12 +231,6 @@ get_training_data = function(crf_input_files, feature_inclusion_list, excluded_p
 			else if(startsWith(line, "#END", trim=TRUE, ignore.case=FALSE)) {	
 				# create a new data frame
 				colnames(x) = filtered_headers
-				#x = scale(x,center=FALSE,scale=TRUE)
-				#print(typeof(x))
-				# scale will return NaNs for columns with no variance, set those values to 0
-				#x = replace(x,is.na(x),0.0)
-				# If the participant is the excluded participant, then skip
-				#cat("excluded_participant: " , unlist(excluded_participant),", participant: ",unlist(participant), "\n")
 				if(!is.na(excluded_participant) && participant == excluded_participant) {			
 					cat("Excluding " , participant, "\n")
 					test_x[[ii]] = x

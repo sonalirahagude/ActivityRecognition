@@ -7,7 +7,6 @@
 generate_features= function( feature_list_file, output_file_name, options, sequence, participant_file_list) {
 	conn = file(feature_list_file,open = 'r')
 	feature_functions = readLines(conn)	
-	
 	output_file  = file.path(output_file_name)
 	labels = as.vector(sequence$behavior)
 
@@ -28,18 +27,21 @@ generate_features= function( feature_list_file, output_file_name, options, seque
 	for(i in 1:nrow(sequence)) {
 		label = labels[i]
 		participant = participants[i]
-		if(participant != first_participant ) {
-			cat('#END\n', file=participant_output_file, append=TRUE)
-			participant_output_file_name = paste0(output_file_name,"_", participant)
-			first_participant = participant
-			participant_output_file = file.path(participant_output_file_name)
-			if(participant_output_file_name %in% participant_file_list) {		
-			} else {
-				participant_file_list = append(participant_file_list, participant_output_file_name)
-				generate_header(feature_list_file, participant_output_file_name, options)
-			}
-			cat('#START\n', file=participant_output_file, append=TRUE)	
-		}
+		# if(participant != first_participant ) {
+		# 	cat("not equal\n")
+		# 	cat("participant:-", participant, ", first_participant:-", first_participant,"----\n")
+		# 	cat('#END\n', file=participant_output_file, append=TRUE)
+		# 	participant_output_file_name = paste0(output_file_name,"_", participant)
+		# 	cat("ending participant file: ", participant_output_file_name,", i:",i,"\n")
+		# 	first_participant = participant
+		# 	participant_output_file = file.path(participant_output_file_name)
+		# 	if(participant_output_file_name %in% participant_file_list) {		
+		# 	} else {
+		# 		participant_file_list = append(participant_file_list, participant_output_file_name)
+		# 		generate_header(feature_list_file, participant_output_file_name, options)
+		# 	}
+		# 	cat('#START\n', file=participant_output_file, append=TRUE)	
+		# }
 		
 		cat(label,'\t', sep="", file=output_file, append=TRUE)	
 		cat(label,'\t', sep="", file=participant_output_file, append=TRUE)	
@@ -59,8 +61,7 @@ generate_features= function( feature_list_file, output_file_name, options, seque
 
 		}
 		cat('\n', file=output_file, append=TRUE)			
-		cat('\n', file=participant_output_file, append=TRUE)			
-
+		cat('\n', file=participant_output_file, append=TRUE)					
 	}
 	# mark end of a new sequence in the output file
 	cat('#END\n', file=output_file, append=TRUE)
@@ -97,11 +98,12 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 
 	plain_features = data.frame()
 	for(feature_dir in feature_dirs) { 
-		cat("Exracting features from: " , feature_dir, "\n")
-		if(file.info(feature_dir)$isdir) {			
+		if(file.info(feature_dir)$isdir) {
+			cat("Exracting features from directory: " , feature_dir, "\n")
 			features = read_from_dir(feature_dir)
 		}
 		else {
+			cat("Exracting features from file: " , feature_dir, "\n")
 			features = read_from_file(feature_dir)
 		}
 		if(nrow(plain_features) == 0) {
@@ -141,7 +143,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	# make the date formate same 
 	date_format = get_date_format(toString(plain_features[1, ]$timestamp))
 	#---------------------
-	# first fomat the labels timestamp in the same format as features so that we can merge on the timestamp
+	# first format the labels timestamp in the same format as features so that we can merge on the timestamp
 	labels$timestamp = strptime(labels$timestamp, date_format)
 
 	#---------------------
@@ -162,19 +164,23 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	# The below logic detects if 2 consecutive data points are non contiguous in time,
 	# if so, it starts a new CRF sequence for the later data point, with no overlap.
 	i = 1
+	participant = toString(plain_features[1, ]$participant)
 	while(i <= nrow(plain_features) ) {
 		max_seq_end = i + crf_sequence_length - 1
 		if(max_seq_end > nrow(plain_features)) {
 			max_seq_end = nrow(plain_features)
 		}
-
+		participant = toString(plain_features[i, ]$participant)
 		seq_end = i
 		while(seq_end < max_seq_end) {
+			cur_participant = toString(plain_features[seq_end+1, ]$participant)
 			#---------------------
 			#if(is_immediate_data_point(plain_features[seq_end, ]$dateTime, plain_features[seq_end + 1, ]$dateTime, date_format, window_size) )  {
-			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, 60) )  {
+			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, 60)  && cur_participant == participant)  {
 			#---------------------
 				seq_end = seq_end + 1
+				participant = cur_participant
+
 			} else {
 				break
 			}
@@ -211,7 +217,7 @@ read_from_dir = function(dir, names = NULL) {
     	for (k in 1:length(days)) {
     		file = file.path(dir, names[i], days[k])
     		# Set check.names=FALSE, else strings starting with numbers in the header will be read as 25thp -- X25thp
-    		feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
+    		feats = read.csv(file, header=TRUE,sep = ",", stringsAsFactors=FALSE, check.names=FALSE, strip.white=TRUE)
     		# add the participant name so that it can be used during merging
     		feats[,'participant'] = rep(names[i], times = nrow(feats))    		
     		if("dateTime" %in% colnames(feats)) {
@@ -224,7 +230,7 @@ read_from_dir = function(dir, names = NULL) {
 }
 
 read_from_file = function (file) {
-	feats = read.csv(file, header=TRUE, stringsAsFactors=TRUE, check.names=FALSE)
+	feats = read.csv(file, header=TRUE,sep = ",", stringsAsFactors=FALSE, check.names=FALSE, strip.white=TRUE)
 	if("identifier" %in% colnames(feats)) {
 		feats = rename(feats,c("identifier"="participant"))
 	}
@@ -237,6 +243,10 @@ read_from_file = function (file) {
 # Checks if two data points contiguous in the input file are contiguous in time too
 is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, gap_threshold) {
 	#if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") )== window_size) {
+	# print(prev_timestamp)
+	# print(cur_timestamp)
+	# print(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs")))
+	# print('----------------------------')
 	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") ) < gap_threshold) {
 		return(TRUE)
 	} 

@@ -1,49 +1,49 @@
 # GPS related features
 #lat
 #lon
-snrUsed
+#snrUsed
 #snrView
-nsatUsed
+#nsatUsed
 #nsatView
 speed
 distance
-ele
+#ele
 elevationDelta
 
 # overall features
-#no_of_pauses
-#average_speed
-#sd_speed
-#coefficient_of_variation
-#total_distance
-#net_distance
-#net_to_total_distance_ratio
-#direction_change_count
+no_of_pauses
+average_speed
+sd_speed
+coefficient_of_variation
+total_distance
+net_distance
+net_to_total_distance_ratio
+direction_change_count
 
 # Shorter custom features, do not compute over the entire sequence but just a subset of it
 
-#no_of_pauses_shorter
+no_of_pauses_shorter
 
-#average_speed_shorter
-#sd_speed_shorter
-#coefficient_of_variation_shorter
+average_speed_shorter
+sd_speed_shorter
+coefficient_of_variation_shorter
 
-#total_distance_shorter
-#net_distance_shorter
-#net_to_total_distance_ratio_shorter
+total_distance_shorter
+net_distance_shorter
+net_to_total_distance_ratio_shorter
 
-#direction_change_count_shorter
+direction_change_count_shorter
 
 
 # Difference features
-#lat_1
-#lat_2
-#lon_1
-#lon_2
-#speed_1
-#speed_2
-#elevationDelta_1
-#elevationDelta_2
+lat_1
+lat_2
+lon_1
+lon_2
+speed_1
+speed_2
+elevationDelta_1
+elevationDelta_2
 
 # Accelerometer related features
 mean

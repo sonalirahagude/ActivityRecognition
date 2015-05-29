@@ -32,6 +32,7 @@ contrasive_divergence = function(G, y, labels, gibbs_sampling_rounds) {
             #     # calculate the log of the numerator
             #     p[i,u] = (G[label_prev, u, i]) + (G[u, label_next, i+1])                                                                    
             # }
+        
             # calculate the log of the numerator
             p[i,] = (G[label_prev, , i]) + (G[, label_next, i+1])                                                                    
 
@@ -46,12 +47,8 @@ contrasive_divergence = function(G, y, labels, gibbs_sampling_rounds) {
             rand_no = rand_no * sum(p[i,])            
             csum = 0;
             for (u in labels ) {                                
-                #p[i,u] = p[i,u]/sum                               
                 csum = csum + p[i,u]
                 #If the rand_no falls within this range of buckets, choose the value u
-                # print(rand_no)
-                # print(p[i,u])
-                # print(csum)
                 if(rand_no < csum && u!='START' && u!= 'STOP') {
                     y_new[i] = u
                     break
@@ -59,8 +56,5 @@ contrasive_divergence = function(G, y, labels, gibbs_sampling_rounds) {
             }                        
         }       
     }
-    # cat("y:" , y, "\n")
-    # cat("y_old:" , y_old, "\n")
-    # cat("y_new:" , y_new, "\n\n")
     return (y_new)
 }   

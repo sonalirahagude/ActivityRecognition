@@ -13,6 +13,21 @@ net_to_total_distance_ratio
 
 direction_change_count
 
+# Shorter custom features, do not compute over the entire sequence but just a subset of it
+
+no_of_pauses_shorter
+
+average_speed_shorter
+sd_speed_shorter
+coefficient_of_variation_shorter
+
+total_distance_shorter
+net_distance_shorter
+net_to_total_distance_ratio_shorter
+
+direction_change_count_shorter
+
+
 # File to mention plain features
 plain_features
 

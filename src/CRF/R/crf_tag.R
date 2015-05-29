@@ -19,11 +19,11 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
     pre_proc_values = model$pre_proc_values
     #print(crf_weights)
 	feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
-    print(feature_inclusion_list)
+    #print(feature_inclusion_list)
 
 	# read training data from file
     if(is.null(test_list)) {        
-        cat("Reading from file: ", crf_test_file,"\n")
+        #cat("Reading from file: ", crf_test_file,"\n")
 	   test_list = get_training_data(crf_test_file, feature_inclusion_list)
     } 
 	x_list = test_list[[1]]
@@ -38,7 +38,7 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
 	labels = dimnames(crf_weights)[[2]]
     
     # just in case the feature list from training does not conform
-    # crf_weights = crf_weights[,,unlist(features)]
+     crf_weights = crf_weights[,,unlist(features)]
 	
     predictions = file.path(output_prediction_file)
 	if (file.exists( predictions) ) {
@@ -59,7 +59,7 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
             cat('Error with Preprocessing, lengths x and y dont match\n');          
             return
         }
-
+        #cat("taggging example: ", j, "\n")
         #Calculate Viterbi Path and y_hat, uses anotherCOMPUTEG               
         G = compute_g_matrices(x, crf_weights, labels)
         #print(G)

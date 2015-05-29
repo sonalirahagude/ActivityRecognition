@@ -1,0 +1,63 @@
+feature.minfreq -100000.000000 The minimum frequency of features.
+feature.possible_states 1 Force to generate possible state features.
+feature.possible_transitions 1 Force to generate possible transition features.
+c2 1.000000 Coefficient for L2 regularization.
+max_iterations 1000 The maximum number of iterations (epochs) for SGD optimization.
+period 10 The duration of iterations to test the stopping criterion.
+delta 0.000001 The threshold for the stopping criterion; an optimization process stops when
+the improvement of the log likelihood over the last ${period} iterations is no
+greater than this threshold.
+calibration.eta 0.100000 The initial value of learning rate (eta) used for calibration.
+calibration.rate 2.000000 The rate of increase/decrease of learning rate for calibration.
+calibration.samples 1000 The number of instances used for calibration.
+calibration.candidates 10 The number of candidates of learning rate.
+calibration.max_trials 20 The maximum number of trials of learning rates for calibration.
+Feature generation
+type: CRF1d
+feature.minfreq: -100000.000000
+feature.possible_states: 1
+feature.possible_transitions: 1
+0....1....2....3....4....5....6....7....8....9....10
+Number of features: 300
+Seconds required: 1.165
+
+Stochastic Gradient Descent (SGD)
+c2: 0.001000
+max_iterations: 5000
+period: 20
+delta: 0.000001
+
+Calibrating the learning rate (eta)
+calibration.eta: 0.100000
+calibration.rate: 2.000000
+calibration.samples: 1000
+calibration.candidates: 10
+calibration.max_trials: 20
+Initial loss: 22126.437685
+Trial #1 (eta = 0.100000): 36012.946540 (worse)
+Trial #2 (eta = 0.050000): 18675.401841
+Trial #3 (eta = 0.025000): 9533.610518
+Trial #4 (eta = 0.012500): 5759.810087
+Trial #5 (eta = 0.006250): 5334.294235
+Trial #6 (eta = 0.003125): 6676.727313
+Trial #7 (eta = 0.001563): 8790.964476
+Trial #8 (eta = 0.000781): 10903.745906
+Trial #9 (eta = 0.000391): 12723.644657
+Trial #10 (eta = 0.000195): 14287.856037
+Trial #11 (eta = 0.000098): 15743.382654
+Best learning rate (eta): 0.006250
+Seconds required: 0.224
+
+***** Epoch #1 *****
+Loss: 15977.411119
+Feature L2-norm: 11.502397
+Learning rate (eta): 0.006250
+Total number of feature updates: 6451
+Seconds required for this iteration: 0.125
+
+***** Epoch #2 *****
+Loss: 11273.466481
+Feature L2-norm: 13.501809
+Learning rate (eta): 0.006250
+Total number of feature updates: 12902
+Seconds required for this iteration: 0.127

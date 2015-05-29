@@ -6,13 +6,21 @@ Script to train CRF, accepts input file which is complaint to CRFSuite requireme
 
 import crfsuite
 import sys
+import pandas as pd
+import crf_train
 
-def read_file_to_crfsuite(crf_input_file, crf_tagger):    
+
+def read_file_to_crfsuite(crf_input_file, feature_inclusion_list, crf_tagger, output):    
     import crfsuite
     f = open(crf_input_file, 'r')
+    min_max  = pd.load('min_max_dataframe')
     xseq = crfsuite.ItemSequence()
     yseq = crfsuite.StringList()
     for line in f:        
+        if "label" in line:            
+            feature_index_list = crf_train.get_feature_index_list(line, feature_inclusion_list)
+            header = line.split('\t')
+            continue
         if "START" in line:
             continue
         if "END" in line:
@@ -22,38 +30,47 @@ def read_file_to_crfsuite(crf_input_file, crf_tagger):
                 label = y_itr.next()
                 #print "prediction: " + prediction
                 #print "label: " + label
-                print prediction.strip() + "," + label.strip()
+                output.write(prediction.strip() + "," + label.strip()+"\n")
+                #print prediction.strip() + "," + label.strip()
             xseq = crfsuite.ItemSequence()
             yseq = crfsuite.StringList()
         else:
             item = crfsuite.Item()
             fields = line.split('\t')
-            for feature_tuple in fields[1:]:
-                p = feature_tuple.rfind(':')
-                if p == -1:
-                    # Unweighted (weight=1) attribute.
-                    item.append(crfsuite.Attribute(feature_tuple))
-                else:
-                    # Weighted attribute
-                    item.append(crfsuite.Attribute(feature_tuple[:p], float(feature_tuple[p+1:])))           
+            for i in range(0,len(fields)):
+                if i in feature_index_list:
+                    # print header[i]
+                    # print fields[i]
+                    attribute_name = header[i]
+                    if(fields[i] == 'NA'):
+                        attribute_val = 0
+                    else:
+                        #attribute_val = float(fields[i]) 
+                        denom = min_max['max'][attribute_name] - min_max['min'][attribute_name]
+                        if denom == 0:
+                            attribute_val = 0
+                        else: 
+                            attribute_val = (float(fields[i]) - min_max['min'][attribute_name] )/ denom
+                        #print attribute_val
+                    item.append(crfsuite.Attribute(attribute_name, attribute_val))            
             xseq.append(item)
             #print xseq.items()
             yseq.append(fields[0])
 
 
 
-if __name__ == '__main__':
-    fi = sys.stdin
-    fo = sys.stdout
-
+def crf_tag(crf_model_file, crf_test_file, feature_list_file, output_file):
+    output = open(output_file, 'w')
 	# Create a tagger object.
     tagger = crfsuite.Tagger()
     
     # Load the model to the tagger.
-    tagger.open(sys.argv[1])
+    tagger.open(crf_model_file)
 
-    print "Prediction,True Label"
-    read_file_to_crfsuite(sys.argv[2],tagger)
+    output.write("Prediction,True Label\n")
+    feature_inclusion_list = crf_train.get_feature_inclusion_list(feature_list_file)
+
+    read_file_to_crfsuite(crf_test_file,feature_inclusion_list, tagger,output)
     """
     for xseq in instances(fi):
     	# Tag the sequence.
