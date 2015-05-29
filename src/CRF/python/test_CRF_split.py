@@ -4,11 +4,13 @@ import crf_tag
 import find_accuracy
 
 
-split_rule = '70-30'
-reg_constant = 0.08
+#split_rule = '70-30'
+split_rule = '80-20'
+reg_constant = 0.1
 period = 5
 feature_file = 'feature_list_all_sequence_wide_only'
 
+options_dict = {'reg_constant': str(reg_constant), 'period': str(period)}
 
 misc = 'seqlen_15_l2_'+ split_rule + '_' + str(reg_constant) + '_lbfgs_period_'+ str(period) +'_sequence_wide_only'
 #misc = ""
@@ -21,13 +23,13 @@ participant_list=["SDU078","SDU079","SDU080","SDU082","SDU085","SDU086","SDU087"
 model_file = 'test/results/crf_all_model' + misc
 #-------------------------------------------------------------------
 # 70-30 split
-excluded_participant_list = ["SDU103","SDU109","SDU111","SDU113","SDU114","SDU115","SDU116","SDU117","SDU118","SDU119","SDU120","SDU121"] 
+#excluded_participant_list = ["SDU103","SDU109","SDU111","SDU113","SDU114","SDU115","SDU116","SDU117","SDU118","SDU119","SDU120","SDU121"] 
 
 # 80-20 split
 #excluded_participant_list = ["SDU078","SDU079","SDU080","SDU082","SDU085","SDU086","SDU087","SDU089"]
-#excluded_participant_list = ["SDU109","SDU111","SDU113","SDU114","SDU115","SDU116","SDU117"] 
+excluded_participant_list = ["SDU109","SDU111","SDU113","SDU114","SDU115","SDU116","SDU117"] 
 
-crf_train.crf_train(train_file,feature_file,model_file, excluded_participant_list)
+crf_train.crf_train(train_file,feature_file,model_file, excluded_participant_list,options_dict)
 
 
 for excluded_participant in excluded_participant_list:

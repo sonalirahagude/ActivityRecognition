@@ -9,8 +9,8 @@ import sys
 import os.path
 import pandas as pd
 import numpy as np
-import cPickle
-
+import crf_tag
+import find_accuracy
 # Inherit crfsuite.Trainer to implement message() function, which receives
 # progress messages from a training process.
 class Trainer(crfsuite.Trainer):
@@ -66,7 +66,7 @@ Convert the file into an object compatible with crfsuite Python module.
 Every line in the crf input file consists of features for a particular token in the CRF sequence and every sequence is contained with a START-END pair
 <token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
 """
-def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, excluded_participant_list, binary_file_name):    
+def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, participant_list):    
     if os.path.isfile('min_max_dataframe'):
         min_max = pd.load('min_max_dataframe')
     else:
@@ -85,17 +85,15 @@ def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, e
         if "START" in line:
             continue
         if "END" in line:
-            crf_trainer.append(xseq, yseq,0)
-            break   
+            print participant_group
+            crf_trainer.append(xseq, yseq,participant_group)   
             xseq = crfsuite.ItemSequence()
             yseq = crfsuite.StringList()
         else:            
             item = crfsuite.Item()
             fields = line.split('\t')
             participant = fields[1]
-            if(participant in excluded_participant_list):
-                print "Excluding " + participant
-                continue
+            participant_group = participant_list.index(participant)
             for i in range(0,len(fields)):
                 if i in feature_index_list:
                     # print header[i]
@@ -116,13 +114,11 @@ def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, e
             #print xseq.items()
             #print fields[0]
             yseq.append(fields[0])
-    if(binary_file_name != ""):
-        print "dumping trainer to: " + binary_file_name
-        binary_file = open(binary_file_name,'w')
-        cPickle.dump(crf_trainer,binary_file)
 
-def get_feature_inclusion_list(file):
-    f = open(file,'r')
+
+def get_feature_inclusion_list(feature_file):
+    print feature_file
+    f = open(feature_file,'r')
     feature_inclusion_list = []
     for line in f:
         if '#' in line:
@@ -144,17 +140,8 @@ def crf_train(crf_train_file,feature_list_file,crf_model_file,excluded_participa
     print 'period: ' + str(period)
     trainer = Trainer()
     
-    feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
-    if(len(excluded_participant_list) ==1) :
-        binary_file_name ='binary_inputs/scaled_python_input_'+excluded_participant_list[0] + '_excluded'
-        if os.path.isfile(binary_file_name):
-            binary_file = open(binary_file_name,'r')
-            trainer = cPickle.load(binary_file)
-        else:
-            print "did not find binary file " + binary_file_name + ". Calling read file function."
-            read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,excluded_participant_list, binary_file_name)
-    else:
-        read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,excluded_participant_list, "")
+    feature_inclusion_list = get_feature_inclusion_list(feature_list_file)    
+    read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,excluded_participant_list)
     # Read training instances from STDIN, and set them to trainer.
     #for xseq, yseq in instances(crf_input_file):
     #    trainer.append(xseq, yseq, 0)
@@ -174,9 +161,10 @@ def crf_train(crf_train_file,feature_list_file,crf_model_file,excluded_participa
     trainer.set('num_memories','20')
     trainer.set('c2', reg_constant)
     trainer.set('period', period)
-    trainer.set('max_iterations','5000')
     #-----------------------------------------
     
+
+    trainer.set('max_iterations','5000')
     trainer.set('feature.minfreq','-100000')
     trainer.set('feature.possible_states', '1')
     trainer.set('feature.possible_transitions', '1')
@@ -190,3 +178,61 @@ def crf_train(crf_train_file,feature_list_file,crf_model_file,excluded_participa
     # to report the progress.
     trainer.train(crf_model_file, -1)
 
+
+
+def leave_one_out(crf_train_file,feature_list_file,participant_list, test_participant_list, options_dict):
+    reg_constants = options_dict['reg_constants']
+    periods = options_dict['periods']
+    
+    output_name = 'test/accuracies/grid_search' + feature_list_file
+    output = open(output_name, 'a')
+    output.write('period, reg_constant,avg_acc\n')
+    trainer = Trainer()
+    
+    feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
+    print feature_inclusion_list
+    read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,participant_list)
+    print 'read from file'
+    
+    for period in periods:
+        for reg_constant in reg_constants:
+            print 'reg_constant: ' + str(reg_constant)
+            print 'period: ' + str(period)
+            trainer.select('lbfgs','crf1d')    
+            trainer.set('num_memories','20')
+            trainer.set('c2', str(reg_constant))
+            trainer.set('period',str(period))
+    
+            trainer.set('max_iterations','500')
+            trainer.set('feature.minfreq','-100000')
+            trainer.set('feature.possible_states', '1')
+            trainer.set('feature.possible_transitions', '1')
+    
+            avg_acc = 0.0
+
+            participant_details_file_name  = 'test/accuracies/' + feature_list_file + '_Acc_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant' 
+            participant_details_file = open(participant_details_file_name,'w')
+            participant_details_file.write('participant,accuracy\n')
+            for excluded_participant in test_participant_list :
+                crf_model_file = 'test/results/crf_all_model_' + excluded_participant + '_excluded' + str(period) + '_period_' + str(reg_constant) + '_reg_constant_'  + feature_list_file
+
+                excluded_participant_group = test_participant_list.index(excluded_participant)
+                trainer.train(crf_model_file, excluded_participant_group)            
+                
+                participant_file= crf_train_file  +'_' + excluded_participant 
+                output_prediction_file='test/results/results_AllTrain'+ excluded_participant + 'Test_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant_'  + feature_list_file
+                crf_tag.crf_tag(crf_model_file, participant_file, feature_list_file, output_prediction_file)
+                
+                acc  = find_accuracy.find_accuracy(output_prediction_file)
+                print excluded_participant + ": " + str(acc)
+                participant_details_file.write(excluded_participant + ','  + str(acc) + '\n')
+                participant_details_file.flush()
+                avg_acc = avg_acc + acc
+            avg_acc = avg_acc/len(test_participant_list)    
+            print "avg_acc: " +  str(avg_acc)
+            participant_details_file.write('Avg' + ', ' + str(avg_acc) + '\n')
+            participant_details_file.close()
+            output.write( str(period) + ', ' + str(reg_constant) + ', ' + str(avg_acc) +"\n")
+            output.flush()
+    output.close()
+    
