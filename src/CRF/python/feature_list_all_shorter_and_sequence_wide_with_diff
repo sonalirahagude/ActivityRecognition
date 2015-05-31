@@ -35,14 +35,18 @@ direction_change_count_shorter
 
 
 # Difference features
-#lat_1
-#lat_2
-#lon_1
-#lon_2
-#speed_1
-#speed_2
-#elevationDelta_1
-#elevationDelta_2
+speed_1
+speed_2
+speed_3
+speed_4
+distance_1
+distance_2
+distance_3
+distance_4
+elevationDelta_1
+elevationDelta_2
+elevationDelta_3
+elevationDelta_4
 
 # Accelerometer related features
 mean

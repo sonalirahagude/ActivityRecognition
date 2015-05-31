@@ -1,0 +1,14 @@
+,Sedentary_label,StandingStill_label,StandingMoving_label,Walking_label,Biking_label,Vehicle_label
+Sedentary,0.9852941176470589,0.0,0.031746031746031744,0.0,0.0,
+StandingStill,0.0,0.0,0.23809523809523808,0.0,0.0,
+StandingMoving,0.014705882352941176,1.0,0.47619047619047616,0.0,0.0,
+Walking,0.0,0.0,0.25396825396825395,0.9627329192546584,0.011235955056179775,
+Biking,0.0,0.0,0.0,0.037267080745341616,0.9887640449438202,
+Vehicle,0.0,0.0,0.0,0.0,0.0,
+,Sedentary_label,StandingStill_label,StandingMoving_label,Walking_label,Biking_label,Vehicle_label
+Sedentary,,0.0,,0.0,,0.0
+StandingStill,,1.0,,0.2,,0.0
+StandingMoving,,0.0,,0.0,,0.0
+Walking,,0.0,,0.8,,0.02197802197802198
+Biking,,0.0,,0.0,,0.0
+Vehicle,,0.0,,0.0,,0.978021978021978

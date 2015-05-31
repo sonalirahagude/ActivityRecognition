@@ -11,7 +11,7 @@ def build_confusion_matrix(prediction_file):
 		prediction = prediction.strip()
 		label = label.strip()
 		#skip header
-		if(prediction == 'prediction'):
+		if(prediction == 'Prediction') or label=='True Label':
 			continue
 		# in case of pandas data frame , the first subsccript is the column and the second one is the row -- COUNTER INTUITIVE!
 		confusion_matrix[label][prediction] = confusion_matrix[label][prediction] + 1
@@ -20,7 +20,7 @@ def build_confusion_matrix(prediction_file):
 
 if __name__ == '__main__':
 	prediction_file = sys.argv[1]
-	#accuracy_file = sys.argv[2]
+	accuracy_file = sys.argv[2]
 	#fa = open(accuracy_file,'a+')
 	f = open(prediction_file,'r')  
 	accuracy = 0
@@ -53,9 +53,10 @@ if __name__ == '__main__':
 	print "total transitions: " + str(transition_accuracy) + "/" + str(transition_total)
 
 	#fa.write(str(accuracy*1.0/total*100.0))
-	#df = build_confusion_matrix(sys.argv[1])
+	df = build_confusion_matrix(sys.argv[1])
 	#fa.write(df)
-	#print df
-#	df.to_csv(accuracy_file)
+	print df
+	df = df/df.sum()
+	df.to_csv(accuracy_file,mode='a')
 	print("-------------------------------------------------------------------------------------------------------------------------")
 	#f.close()

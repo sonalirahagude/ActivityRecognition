@@ -45,18 +45,22 @@ def get_min_max_scaling_values (crf_input_file, feature_inclusion_list):
         else:
             fields = line.split('\t')
             for i in range(0,len(fields)):
-                if i in feature_index_list:
+                #if i in feature_index_list:
                     # print header[i]
                     # print fields[i]
-                    attribute_name = header[i]
-                    if(fields[i] == 'NA'):
-                        continue
-                    else:
+                attribute_name = header[i]
+                if(fields[i] == 'NA'):
+                    continue
+                else:
+                    try:
                         attribute_val = float(fields[i])
-                    if(min_max['min'][attribute_name] > attribute_val ):
-                        min_max['min'][attribute_name] = attribute_val 
-                    if(min_max['max'][attribute_name] < attribute_val ):
-                        min_max['max'][attribute_name] = attribute_val 
+                    except ValueError:
+                        #print 'Skipping ' + fields[i]
+                        continue
+                if(min_max['min'][attribute_name] > attribute_val ):
+                    min_max['min'][attribute_name] = attribute_val 
+                if(min_max['max'][attribute_name] < attribute_val ):
+                    min_max['max'][attribute_name] = attribute_val 
     print min_max
     min_max.save('min_max_dataframe')
     return min_max
@@ -203,15 +207,15 @@ def leave_one_out(crf_train_file,feature_list_file,participant_list, test_partic
             trainer.set('c2', str(reg_constant))
             trainer.set('period',str(period))
     
-            trainer.set('max_iterations','500')
+            trainer.set('max_iterations','1000')
             trainer.set('feature.minfreq','-100000')
             trainer.set('feature.possible_states', '1')
             trainer.set('feature.possible_transitions', '1')
     
             avg_acc = 0.0
 
-            participant_details_file_name  = 'test/accuracies/' + feature_list_file + '_Acc_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant' 
-            participant_details_file = open(participant_details_file_name,'w')
+            participant_details_file_name  = 'test/accuracies/' + feature_list_file + '_Acc_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant'
+            participant_details_file = open(participant_details_file_name,'a')
             participant_details_file.write('participant,accuracy\n')
             for excluded_participant in test_participant_list :
                 crf_model_file = 'test/results/crf_all_model_' + excluded_participant + '_excluded' + str(period) + '_period_' + str(reg_constant) + '_reg_constant_'  + feature_list_file
