@@ -1,6 +1,5 @@
 
-#import crf_train
-import crf_train_new
+import crf_train
 import crf_tag
 import find_accuracy
 
@@ -30,4 +29,4 @@ test_participant_list=["SDU079","SDU080","SDU082","SDU085","SDU086","SDU089","SD
 
 options_dict = {'reg_constants': reg_constants, 'periods': periods}
 
-crf_train_new.leave_one_out(train_file,feature_file,participant_list, test_participant_list, options_dict)
+crf_train.leave_one_out(train_file,feature_file,participant_list, test_participant_list, options_dict)
