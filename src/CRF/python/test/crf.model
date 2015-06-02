@@ -1,0 +1,510 @@
+FILEHEADER = {
+  magic: lCRF
+  size: 17372
+  type: FOMC
+  version: 100
+  num_features: 0
+  num_labels: 6
+  num_attrs: 63
+  off_features: 0x30
+  off_labels: 0x2094
+  off_attrs: 0x2992
+  off_labelrefs: 0x3B1C
+  off_attrrefs: 0x3BF0
+}
+
+LABELS = {
+      0: Walking
+      1: StandingMoving
+      2: Sedentary
+      3: Biking
+      4: StandingStill
+      5: Vehicle
+}
+
+ATTRIBUTES = {
+      0: no_of_pauses
+      1: average_speed
+      2: sd_speed
+      3: coefficient_of_variation
+      4: total_distance
+      5: net_distance
+      6: net_to_total_distance_ratio
+      7: direction_change_count
+      8: no_of_pauses_shorter
+      9: average_speed_shorter
+     10: sd_speed_shorter
+     11: coefficient_of_variation_shorter
+     12: total_distance_shorter
+     13: net_distance_shorter
+     14: net_to_total_distance_ratio_shorter
+     15: direction_change_count_shorter
+     16: snrUsed
+     17: nsatUsed
+     18: speed
+     19: distance
+     20: ele
+     21: elevationDelta
+     22: mean
+     23: sd
+     24: coefvariation
+     25: median
+     26: min
+     27: max
+     28: 25thp
+     29: 75thp
+     30: autocorr
+     31: corrxy
+     32: corrxz
+     33: corryz
+     34: avgroll
+     35: avgpitch
+     36: avgyaw
+     37: sdroll
+     38: sdpitch
+     39: sdyaw
+     40: rollg
+     41: pitchg
+     42: yawg
+     43: fmax
+     44: pmax
+     45: fmaxband
+     46: pmaxband
+     47: entropy
+     48: fft0
+     49: fft1
+     50: fft2
+     51: fft3
+     52: fft4
+     53: fft5
+     54: fft6
+     55: fft7
+     56: fft8
+     57: fft9
+     58: fft10
+     59: fft11
+     60: fft12
+     61: fft13
+     62: fft14
+}
+
+TRANSITIONS = {
+  (1) Walking --> Walking: 4.187944
+  (1) Walking --> StandingMoving: 0.254820
+  (1) Walking --> Sedentary: -0.703657
+  (1) Walking --> Biking: -0.204173
+  (1) Walking --> StandingStill: 0.430809
+  (1) Walking --> Vehicle: 0.344065
+  (1) StandingMoving --> Walking: 0.089916
+  (1) StandingMoving --> StandingMoving: 4.441212
+  (1) StandingMoving --> Sedentary: -0.749259
+  (1) StandingMoving --> Biking: -0.506829
+  (1) StandingMoving --> StandingStill: -0.140824
+  (1) StandingMoving --> Vehicle: 0.234369
+  (1) Sedentary --> Walking: -0.592797
+  (1) Sedentary --> StandingMoving: -0.775001
+  (1) Sedentary --> Sedentary: 2.866448
+  (1) Sedentary --> Biking: -3.081722
+  (1) Sedentary --> StandingStill: -1.400293
+  (1) Sedentary --> Vehicle: -3.756725
+  (1) Biking --> Walking: -0.134007
+  (1) Biking --> StandingMoving: -0.435874
+  (1) Biking --> Sedentary: -2.302922
+  (1) Biking --> Biking: 5.604000
+  (1) Biking --> StandingStill: 0.137409
+  (1) Biking --> Vehicle: -4.299249
+  (1) StandingStill --> Walking: 0.480508
+  (1) StandingStill --> StandingMoving: -0.232800
+  (1) StandingStill --> Sedentary: -1.363704
+  (1) StandingStill --> Biking: -0.099067
+  (1) StandingStill --> StandingStill: 4.467815
+  (1) StandingStill --> Vehicle: -0.681750
+  (1) Vehicle --> Walking: 1.013715
+  (1) Vehicle --> StandingMoving: 0.092543
+  (1) Vehicle --> Sedentary: -3.748751
+  (1) Vehicle --> Biking: -4.101966
+  (1) Vehicle --> StandingStill: -1.186349
+  (1) Vehicle --> Vehicle: 5.852147
+}
+
+STATE_FEATURES = {
+  (0) no_of_pauses --> Walking: -0.188686
+  (0) no_of_pauses --> StandingMoving: 0.025851
+  (0) no_of_pauses --> Sedentary: 0.013736
+  (0) no_of_pauses --> Biking: -0.063654
+  (0) no_of_pauses --> StandingStill: -0.200376
+  (0) no_of_pauses --> Vehicle: 0.413129
+  (0) average_speed --> Walking: 4.655705
+  (0) average_speed --> StandingMoving: -3.721608
+  (0) average_speed --> Sedentary: -0.386302
+  (0) average_speed --> Biking: -1.015869
+  (0) average_speed --> StandingStill: -0.531553
+  (0) average_speed --> Vehicle: 0.999627
+  (0) sd_speed --> Walking: -0.841700
+  (0) sd_speed --> StandingMoving: 1.393090
+  (0) sd_speed --> Sedentary: 0.175583
+  (0) sd_speed --> Biking: 0.186583
+  (0) sd_speed --> StandingStill: -0.050337
+  (0) sd_speed --> Vehicle: -0.863219
+  (0) coefficient_of_variation --> Walking: -0.049664
+  (0) coefficient_of_variation --> StandingMoving: -0.023063
+  (0) coefficient_of_variation --> Sedentary: -0.062208
+  (0) coefficient_of_variation --> Biking: 0.249411
+  (0) coefficient_of_variation --> StandingStill: -0.079163
+  (0) coefficient_of_variation --> Vehicle: -0.035314
+  (0) total_distance --> Walking: -1.671867
+  (0) total_distance --> StandingMoving: 0.263127
+  (0) total_distance --> Sedentary: -0.734460
+  (0) total_distance --> Biking: 2.240694
+  (0) total_distance --> StandingStill: 0.866601
+  (0) total_distance --> Vehicle: -0.964094
+  (0) net_distance --> Walking: -0.790356
+  (0) net_distance --> StandingMoving: -0.718084
+  (0) net_distance --> Sedentary: -0.238953
+  (0) net_distance --> Biking: 1.665034
+  (0) net_distance --> StandingStill: -0.810631
+  (0) net_distance --> Vehicle: 0.892991
+  (0) net_to_total_distance_ratio --> Walking: 0.179283
+  (0) net_to_total_distance_ratio --> StandingMoving: -0.199561
+  (0) net_to_total_distance_ratio --> Sedentary: 0.047824
+  (0) net_to_total_distance_ratio --> Biking: -0.449319
+  (0) net_to_total_distance_ratio --> StandingStill: 0.183278
+  (0) net_to_total_distance_ratio --> Vehicle: 0.238495
+  (0) direction_change_count --> Walking: 0.092094
+  (0) direction_change_count --> StandingMoving: 0.313349
+  (0) direction_change_count --> Sedentary: 0.219085
+  (0) direction_change_count --> Biking: -0.420648
+  (0) direction_change_count --> StandingStill: 0.139308
+  (0) direction_change_count --> Vehicle: -0.343188
+  (0) no_of_pauses_shorter --> Walking: 0.469794
+  (0) no_of_pauses_shorter --> StandingMoving: -0.026126
+  (0) no_of_pauses_shorter --> Sedentary: 0.223923
+  (0) no_of_pauses_shorter --> Biking: -0.062416
+  (0) no_of_pauses_shorter --> StandingStill: 0.253184
+  (0) no_of_pauses_shorter --> Vehicle: -0.858358
+  (0) average_speed_shorter --> Walking: -1.031726
+  (0) average_speed_shorter --> StandingMoving: 2.687777
+  (0) average_speed_shorter --> Sedentary: 1.409894
+  (0) average_speed_shorter --> Biking: -3.876118
+  (0) average_speed_shorter --> StandingStill: 2.879735
+  (0) average_speed_shorter --> Vehicle: -2.069562
+  (0) sd_speed_shorter --> Walking: -0.482676
+  (0) sd_speed_shorter --> StandingMoving: -0.850725
+  (0) sd_speed_shorter --> Sedentary: -0.455121
+  (0) sd_speed_shorter --> Biking: 0.643547
+  (0) sd_speed_shorter --> StandingStill: -0.276131
+  (0) sd_speed_shorter --> Vehicle: 1.421106
+  (0) coefficient_of_variation_shorter --> Walking: 0.096731
+  (0) coefficient_of_variation_shorter --> StandingMoving: -0.167075
+  (0) coefficient_of_variation_shorter --> Sedentary: -0.070700
+  (0) coefficient_of_variation_shorter --> Biking: 0.110215
+  (0) coefficient_of_variation_shorter --> StandingStill: -0.001024
+  (0) coefficient_of_variation_shorter --> Vehicle: 0.031854
+  (0) total_distance_shorter --> Walking: -0.450458
+  (0) total_distance_shorter --> StandingMoving: 1.938205
+  (0) total_distance_shorter --> Sedentary: 0.306007
+  (0) total_distance_shorter --> Biking: -3.607111
+  (0) total_distance_shorter --> StandingStill: -1.067238
+  (0) total_distance_shorter --> Vehicle: 2.880596
+  (0) net_distance_shorter --> Walking: 4.168238
+  (0) net_distance_shorter --> StandingMoving: 0.349012
+  (0) net_distance_shorter --> Sedentary: 1.559797
+  (0) net_distance_shorter --> Biking: -6.317554
+  (0) net_distance_shorter --> StandingStill: 2.782351
+  (0) net_distance_shorter --> Vehicle: -2.541845
+  (0) net_to_total_distance_ratio_shorter --> Walking: -0.821685
+  (0) net_to_total_distance_ratio_shorter --> StandingMoving: -0.846128
+  (0) net_to_total_distance_ratio_shorter --> Sedentary: -0.107945
+  (0) net_to_total_distance_ratio_shorter --> Biking: 1.921267
+  (0) net_to_total_distance_ratio_shorter --> StandingStill: -0.892278
+  (0) net_to_total_distance_ratio_shorter --> Vehicle: 0.746769
+  (0) direction_change_count_shorter --> Walking: 0.062410
+  (0) direction_change_count_shorter --> StandingMoving: -0.064121
+  (0) direction_change_count_shorter --> Sedentary: -0.150658
+  (0) direction_change_count_shorter --> Biking: -0.069437
+  (0) direction_change_count_shorter --> StandingStill: -0.051745
+  (0) direction_change_count_shorter --> Vehicle: 0.273550
+  (0) snrUsed --> Walking: 0.143250
+  (0) snrUsed --> StandingMoving: 0.092786
+  (0) snrUsed --> Sedentary: -0.031330
+  (0) snrUsed --> Biking: -0.196599
+  (0) snrUsed --> StandingStill: 0.010199
+  (0) snrUsed --> Vehicle: -0.018307
+  (0) nsatUsed --> Walking: -0.177530
+  (0) nsatUsed --> StandingMoving: 0.141988
+  (0) nsatUsed --> Sedentary: -0.107946
+  (0) nsatUsed --> Biking: -0.002557
+  (0) nsatUsed --> StandingStill: 0.031190
+  (0) nsatUsed --> Vehicle: 0.114856
+  (0) speed --> Walking: -3.819186
+  (0) speed --> StandingMoving: -1.362935
+  (0) speed --> Sedentary: -2.030819
+  (0) speed --> Biking: 8.275757
+  (0) speed --> StandingStill: -2.796708
+  (0) speed --> Vehicle: 1.733891
+  (0) distance --> Walking: -1.751573
+  (0) distance --> StandingMoving: -2.026829
+  (0) distance --> Sedentary: 1.915506
+  (0) distance --> Biking: 1.254870
+  (0) distance --> StandingStill: -1.560540
+  (0) distance --> Vehicle: 2.168566
+  (0) ele --> Walking: 0.566788
+  (0) ele --> StandingMoving: 0.159310
+  (0) ele --> Sedentary: -0.153059
+  (0) ele --> Biking: -0.354064
+  (0) ele --> StandingStill: 0.145624
+  (0) ele --> Vehicle: -0.364599
+  (0) elevationDelta --> Walking: 1.246591
+  (0) elevationDelta --> StandingMoving: -2.693341
+  (0) elevationDelta --> Sedentary: -5.292601
+  (0) elevationDelta --> Biking: 3.860646
+  (0) elevationDelta --> StandingStill: -1.583041
+  (0) elevationDelta --> Vehicle: 4.461746
+  (0) mean --> Walking: 4.844894
+  (0) mean --> StandingMoving: 4.192631
+  (0) mean --> Sedentary: -5.421931
+  (0) mean --> Biking: -7.083657
+  (0) mean --> StandingStill: 2.445001
+  (0) mean --> Vehicle: 1.023062
+  (0) sd --> Walking: 0.367993
+  (0) sd --> StandingMoving: -0.210783
+  (0) sd --> Sedentary: 1.405574
+  (0) sd --> Biking: 0.563833
+  (0) sd --> StandingStill: -0.104734
+  (0) sd --> Vehicle: -2.021883
+  (0) coefvariation --> Walking: 5.482213
+  (0) coefvariation --> StandingMoving: 1.531500
+  (0) coefvariation --> Sedentary: -4.231130
+  (0) coefvariation --> Biking: 2.988183
+  (0) coefvariation --> StandingStill: -2.652342
+  (0) coefvariation --> Vehicle: -3.118424
+  (0) median --> Walking: -0.584667
+  (0) median --> StandingMoving: -5.954162
+  (0) median --> Sedentary: 4.149600
+  (0) median --> Biking: 4.633978
+  (0) median --> StandingStill: -3.636070
+  (0) median --> Vehicle: 1.391321
+  (0) min --> Walking: 0.302002
+  (0) min --> StandingMoving: 0.064997
+  (0) min --> Sedentary: 0.972332
+  (0) min --> Biking: -2.055819
+  (0) min --> StandingStill: 0.259689
+  (0) min --> Vehicle: 0.456799
+  (0) max --> Walking: -1.745171
+  (0) max --> StandingMoving: 1.301080
+  (0) max --> Sedentary: -1.507018
+  (0) max --> Biking: -2.183204
+  (0) max --> StandingStill: 3.130796
+  (0) max --> Vehicle: 1.003517
+  (0) 25thp --> Walking: -2.918768
+  (0) 25thp --> StandingMoving: 4.146313
+  (0) 25thp --> Sedentary: 5.589065
+  (0) 25thp --> Biking: -5.736864
+  (0) 25thp --> StandingStill: 1.866840
+  (0) 25thp --> Vehicle: -2.946586
+  (0) 75thp --> Walking: -2.308350
+  (0) 75thp --> StandingMoving: -3.008015
+  (0) 75thp --> Sedentary: -8.629992
+  (0) 75thp --> Biking: 11.980624
+  (0) 75thp --> StandingStill: 0.139082
+  (0) 75thp --> Vehicle: 1.826651
+  (0) autocorr --> Walking: -0.292191
+  (0) autocorr --> StandingMoving: -0.210984
+  (0) autocorr --> Sedentary: 0.063695
+  (0) autocorr --> Biking: 0.551496
+  (0) autocorr --> StandingStill: -0.043101
+  (0) autocorr --> Vehicle: -0.068915
+  (0) corrxy --> Walking: -0.268017
+  (0) corrxy --> StandingMoving: -0.077168
+  (0) corrxy --> Sedentary: -0.151100
+  (0) corrxy --> Biking: 0.939000
+  (0) corrxy --> StandingStill: -0.223351
+  (0) corrxy --> Vehicle: -0.219364
+  (0) corrxz --> Walking: 0.192314
+  (0) corrxz --> StandingMoving: 0.010450
+  (0) corrxz --> Sedentary: -0.168498
+  (0) corrxz --> Biking: 0.034529
+  (0) corrxz --> StandingStill: -0.129148
+  (0) corrxz --> Vehicle: 0.060353
+  (0) corryz --> Walking: -0.187178
+  (0) corryz --> StandingMoving: -0.326757
+  (0) corryz --> Sedentary: 0.137739
+  (0) corryz --> Biking: 0.035534
+  (0) corryz --> StandingStill: -0.092470
+  (0) corryz --> Vehicle: 0.433132
+  (0) avgroll --> Walking: 0.596870
+  (0) avgroll --> StandingMoving: 0.242447
+  (0) avgroll --> Sedentary: 0.611307
+  (0) avgroll --> Biking: -2.512382
+  (0) avgroll --> StandingStill: 0.212416
+  (0) avgroll --> Vehicle: 0.849341
+  (0) avgpitch --> Walking: 1.748326
+  (0) avgpitch --> StandingMoving: 0.240478
+  (0) avgpitch --> Sedentary: 0.533547
+  (0) avgpitch --> Biking: -2.603364
+  (0) avgpitch --> StandingStill: -1.470880
+  (0) avgpitch --> Vehicle: 1.551894
+  (0) avgyaw --> Walking: -1.357666
+  (0) avgyaw --> StandingMoving: -0.529407
+  (0) avgyaw --> Sedentary: 0.044343
+  (0) avgyaw --> Biking: 2.088605
+  (0) avgyaw --> StandingStill: 0.000730
+  (0) avgyaw --> Vehicle: -0.246605
+  (0) sdroll --> Walking: 0.589847
+  (0) sdroll --> StandingMoving: 0.403808
+  (0) sdroll --> Sedentary: 0.255736
+  (0) sdroll --> Biking: -1.557249
+  (0) sdroll --> StandingStill: 0.062315
+  (0) sdroll --> Vehicle: 0.245542
+  (0) sdpitch --> Walking: -1.214867
+  (0) sdpitch --> StandingMoving: 0.508489
+  (0) sdpitch --> Sedentary: 4.671581
+  (0) sdpitch --> Biking: -4.361881
+  (0) sdpitch --> StandingStill: 0.723946
+  (0) sdpitch --> Vehicle: -0.327267
+  (0) sdyaw --> Walking: 0.122229
+  (0) sdyaw --> StandingMoving: -0.047793
+  (0) sdyaw --> Sedentary: -0.400541
+  (0) sdyaw --> Biking: 1.146413
+  (0) sdyaw --> StandingStill: 0.113557
+  (0) sdyaw --> Vehicle: -0.933865
+  (0) rollg --> Walking: -0.580613
+  (0) rollg --> StandingMoving: -0.348641
+  (0) rollg --> Sedentary: -0.090596
+  (0) rollg --> Biking: 1.247688
+  (0) rollg --> StandingStill: 0.088674
+  (0) rollg --> Vehicle: -0.316512
+  (0) pitchg --> Walking: -1.249389
+  (0) pitchg --> StandingMoving: -0.177297
+  (0) pitchg --> Sedentary: -0.561216
+  (0) pitchg --> Biking: 2.694751
+  (0) pitchg --> StandingStill: 1.221732
+  (0) pitchg --> Vehicle: -1.928580
+  (0) yawg --> Walking: 0.730697
+  (0) yawg --> StandingMoving: 0.372115
+  (0) yawg --> Sedentary: -0.224018
+  (0) yawg --> Biking: -0.915099
+  (0) yawg --> StandingStill: -0.268539
+  (0) yawg --> Vehicle: 0.304843
+  (0) fmax --> Walking: -0.259093
+  (0) fmax --> StandingMoving: -0.022591
+  (0) fmax --> Sedentary: -0.135275
+  (0) fmax --> Biking: 0.475995
+  (0) fmax --> StandingStill: 0.101399
+  (0) fmax --> Vehicle: -0.160435
+  (0) pmax --> Walking: -2.514020
+  (0) pmax --> StandingMoving: -2.398763
+  (0) pmax --> Sedentary: 7.200918
+  (0) pmax --> Biking: 3.780292
+  (0) pmax --> StandingStill: -1.780447
+  (0) pmax --> Vehicle: -4.287979
+  (0) fmaxband --> Walking: -0.226753
+  (0) fmaxband --> StandingMoving: -0.158096
+  (0) fmaxband --> Sedentary: -0.198901
+  (0) fmaxband --> Biking: 0.871151
+  (0) fmaxband --> StandingStill: -0.146943
+  (0) fmaxband --> Vehicle: -0.140458
+  (0) pmaxband --> Walking: 2.206682
+  (0) pmaxband --> StandingMoving: 0.049752
+  (0) pmaxband --> Sedentary: -1.798083
+  (0) pmaxband --> Biking: -0.071075
+  (0) pmaxband --> StandingStill: 2.818333
+  (0) pmaxband --> Vehicle: -3.205608
+  (0) entropy --> Walking: 0.276808
+  (0) entropy --> StandingMoving: 0.878242
+  (0) entropy --> Sedentary: -4.533030
+  (0) entropy --> Biking: 2.406087
+  (0) entropy --> StandingStill: 0.120940
+  (0) entropy --> Vehicle: 0.850953
+  (0) fft0 --> Walking: 2.026544
+  (0) fft0 --> StandingMoving: 4.091004
+  (0) fft0 --> Sedentary: -4.724381
+  (0) fft0 --> Biking: -0.550857
+  (0) fft0 --> StandingStill: 1.880760
+  (0) fft0 --> Vehicle: -2.723069
+  (0) fft1 --> Walking: -0.490803
+  (0) fft1 --> StandingMoving: -3.864784
+  (0) fft1 --> Sedentary: 3.090271
+  (0) fft1 --> Biking: 0.263918
+  (0) fft1 --> StandingStill: -0.364776
+  (0) fft1 --> Vehicle: 1.366174
+  (0) fft2 --> Walking: -2.008065
+  (0) fft2 --> StandingMoving: 3.042641
+  (0) fft2 --> Sedentary: 8.090120
+  (0) fft2 --> Biking: -13.675801
+  (0) fft2 --> StandingStill: 1.103050
+  (0) fft2 --> Vehicle: 3.448055
+  (0) fft3 --> Walking: 0.689104
+  (0) fft3 --> StandingMoving: -4.324340
+  (0) fft3 --> Sedentary: -1.107123
+  (0) fft3 --> Biking: -0.725422
+  (0) fft3 --> StandingStill: 3.146624
+  (0) fft3 --> Vehicle: 2.321158
+  (0) fft4 --> Walking: 1.963960
+  (0) fft4 --> StandingMoving: -2.884059
+  (0) fft4 --> Sedentary: -8.651046
+  (0) fft4 --> Biking: 8.936059
+  (0) fft4 --> StandingStill: -1.169384
+  (0) fft4 --> Vehicle: 1.804470
+  (0) fft5 --> Walking: -4.107680
+  (0) fft5 --> StandingMoving: 3.503079
+  (0) fft5 --> Sedentary: -2.800860
+  (0) fft5 --> Biking: 5.229127
+  (0) fft5 --> StandingStill: -2.524562
+  (0) fft5 --> Vehicle: 0.700897
+  (0) fft6 --> Walking: -6.100429
+  (0) fft6 --> StandingMoving: 1.748369
+  (0) fft6 --> Sedentary: 0.247447
+  (0) fft6 --> Biking: 0.756818
+  (0) fft6 --> StandingStill: 1.125069
+  (0) fft6 --> Vehicle: 2.222725
+  (0) fft7 --> Walking: 2.368446
+  (0) fft7 --> StandingMoving: 0.035352
+  (0) fft7 --> Sedentary: 5.275602
+  (0) fft7 --> Biking: -7.005189
+  (0) fft7 --> StandingStill: -2.052182
+  (0) fft7 --> Vehicle: 1.377971
+  (0) fft8 --> Walking: 1.915018
+  (0) fft8 --> StandingMoving: -0.260984
+  (0) fft8 --> Sedentary: 0.081332
+  (0) fft8 --> Biking: 1.570855
+  (0) fft8 --> StandingStill: 1.944563
+  (0) fft8 --> Vehicle: -5.250784
+  (0) fft9 --> Walking: -1.161008
+  (0) fft9 --> StandingMoving: 2.378179
+  (0) fft9 --> Sedentary: 2.407840
+  (0) fft9 --> Biking: 1.685054
+  (0) fft9 --> StandingStill: -3.479135
+  (0) fft9 --> Vehicle: -1.830929
+  (0) fft10 --> Walking: 2.672649
+  (0) fft10 --> StandingMoving: 0.633424
+  (0) fft10 --> Sedentary: 2.050625
+  (0) fft10 --> Biking: -0.074514
+  (0) fft10 --> StandingStill: -2.436778
+  (0) fft10 --> Vehicle: -2.845406
+  (0) fft11 --> Walking: 2.644397
+  (0) fft11 --> StandingMoving: -0.469288
+  (0) fft11 --> Sedentary: 0.181816
+  (0) fft11 --> Biking: 1.582226
+  (0) fft11 --> StandingStill: -1.153164
+  (0) fft11 --> Vehicle: -2.785987
+  (0) fft12 --> Walking: -3.114027
+  (0) fft12 --> StandingMoving: -1.812151
+  (0) fft12 --> Sedentary: 0.921724
+  (0) fft12 --> Biking: -1.566547
+  (0) fft12 --> StandingStill: 3.773223
+  (0) fft12 --> Vehicle: 1.797777
+  (0) fft13 --> Walking: -0.211805
+  (0) fft13 --> StandingMoving: -1.496618
+  (0) fft13 --> Sedentary: 1.051301
+  (0) fft13 --> Biking: -1.288196
+  (0) fft13 --> StandingStill: -0.332338
+  (0) fft13 --> Vehicle: 2.277656
+  (0) fft14 --> Walking: 0.074962
+  (0) fft14 --> StandingMoving: 1.251652
+  (0) fft14 --> Sedentary: -0.633292
+  (0) fft14 --> Biking: -0.854526
+  (0) fft14 --> StandingStill: -3.330152
+  (0) fft14 --> Vehicle: 3.491357
+}
+

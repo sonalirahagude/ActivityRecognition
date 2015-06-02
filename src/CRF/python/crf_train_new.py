@@ -207,7 +207,7 @@ def leave_one_out(crf_train_file,feature_list_file,participant_list, test_partic
             trainer.set('c2', str(reg_constant))
             trainer.set('period',str(period))
     
-            trainer.set('max_iterations','1000')
+            trainer.set('max_iterations','2000')
             trainer.set('feature.minfreq','-100000')
             trainer.set('feature.possible_states', '1')
             trainer.set('feature.possible_transitions', '1')
