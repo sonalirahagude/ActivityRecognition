@@ -1,7 +1,7 @@
 # set the working directory to the directory of this folder
 print("test")
 
-setwd('/home/sonali/git/ActivityRecognition/src/preprocessing/R/test')
+setwd('.')
 print(getwd())
 source('../setup.R')
 
