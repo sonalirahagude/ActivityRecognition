@@ -77,7 +77,8 @@ generate_features= function( feature_list_file, output_file_name, options, seque
 ## output_feature_file: file to write the CRF compliant features to, will contain the original features at window_size rate <label, feature1, feature2,...featuren>
 ## crf_sequence_length: length of a CRF sequence
 ## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
-generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, output_feature_file, crf_sequence_length = 10, overlap_window_length = 0, window_size =15, options ) {
+generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, output_feature_file, crf_sequence_length = 10, 
+		overlap_window_length = 0, window_size =15, options ) {
 	for(feature_dir in feature_dirs) {
 		if(!file.exists(feature_dir)) {
 			stop("Feature directory not found: " , feature_dir)
@@ -104,7 +105,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 		}
 		else {
 			cat("Exracting features from file: " , feature_dir, "\n")
-			features = read_from_file(feature_dir)
+			features = read_from_file(feature_dir,window_size)
 		}
 		if(nrow(plain_features) == 0) {
 			plain_features = features
@@ -128,7 +129,7 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 		stop("Feature merge failed. Please check the feature directories.", feature_dirs)
 	}
 	if(file.info(label_dir)$isdir) {
-		aligned_labels_dir = paste0(label_dir, "_aligned")
+		aligned_labels_dir = paste0(label_dir, "_",window_size,"_aligned")
 		if (!file.exists(aligned_labels_dir)) {
 			align_labels(label_dir, aligned_labels_dir, window_size)
 		}
@@ -229,8 +230,19 @@ read_from_dir = function(dir, names = NULL) {
 	return(all_feats)
 }
 
-read_from_file = function (file) {
+
+read_from_file = function (file, window_size=15) {
 	feats = read.csv(file, header=TRUE,sep = ",", stringsAsFactors=FALSE, check.names=FALSE, strip.white=TRUE)
+	t1 = strptime(feats[1, c("dateTime")], "%Y-%m-%d %H:%M:%S")
+    t2 = strptime(feats[2, c("dateTime")], "%Y-%m-%d %H:%M:%S")
+    
+    sample_rate = as.numeric(t2 - t1)
+    ws = window_size / sample_rate
+    if (ws != 1) {
+    	feats = aggregate_features(feats,ws)
+    }
+
+
 	if("identifier" %in% colnames(feats)) {
 		feats = rename(feats,c("identifier"="participant"))
 	}
@@ -239,6 +251,36 @@ read_from_file = function (file) {
 	}
 	return (feats)
 }
+
+
+# right now it is hardcoded to aggregate GPS features only
+aggregate_features = function(feats, ws){ 
+	headers = colnames(feats)
+	feats_new = data.frame(matrix(ncol=length(headers),nrow=0))
+	colnames(feats_new) = headers
+	excluded_features_to_aggregate = c("identifier","dateTime","fixType")
+	feats_to_aggregate = headers[!headers %in% excluded_features_to_aggregate]
+ 
+    r = 1
+    single_aggregate = array(0, dim = c(1,length(headers)))
+    colnames(single_aggregate) = headers
+
+    while ((r + ws - 1) <= nrow(feats)) {
+    	single_aggregate[1,feats_to_aggregate] = colMeans(feats[r:(r + ws - 1),feats_to_aggregate])
+ 
+    	for (feature in excluded_features_to_aggregate) {
+    		single_aggregate[1,feature] = feats[r,feature]
+    	}
+    	
+    	feats_new = rbind(feats_new,single_aggregate)
+      	r = r + ws
+      	print(r)
+    }
+    file_name =  "Aggregate_GPS_" + toString(ws) 
+    write.csv(feats_new, file = file_name, row.names = FALSE)
+    return(feats_new)
+}
+
 
 # Checks if two data points contiguous in the input file are contiguous in time too
 is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, gap_threshold) {

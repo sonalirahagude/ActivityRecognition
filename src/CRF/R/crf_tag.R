@@ -110,6 +110,8 @@ crf_tag = function(crf_test_file, crf_model_file, feature_list_file, output_pred
         #     }
         # }
         # if(length(yHat) <= overlap_window_length) {
+        #     overlapped_predictions = list()
+        #     overlapped_labels = list()        
         #     next
         # }
         # new_start = overlap_window_length + 1
