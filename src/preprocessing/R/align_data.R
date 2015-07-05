@@ -16,6 +16,13 @@ extract_labels_dir = function(inputDir, outputDir, winSize, names = NULL) {
 
   for (i in 1:length(files)) {
     # start reading record file
+    print(inputDir)
+    print(files[i])
+    file_full_path = paste0(inputDir, "/",files[i])
+    if(file.info(file_full_path)$isdir) {
+      next
+    }
+
     bouts = read.csv(file.path(inputDir, files[i]), header=TRUE, stringsAsFactors=FALSE)
     output_file = file.path(outputDir, file_path_sans_ext(files[i]))
 
@@ -104,6 +111,7 @@ align_start = function(win_size, start) {
   d0 = trunc(start, "days")
   s = as.numeric(difftime(start, d0, units="secs"))
   w = ceiling(s / win_size)
+  cat("----------",w,"---winSize: ", win_size, "\n")
   newStart = as.POSIXlt(d0 + w * win_size)
   return(newStart)
 }

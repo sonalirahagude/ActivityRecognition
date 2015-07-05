@@ -1,4 +1,4 @@
-# author : Sonali Rahagude (srahagud@eng.ucsd.edu)
+    # author : Sonali Rahagude (srahagud@eng.ucsd.edu)
 # Description: This module contains functions to generate different feature function templates for the CRF model. These will be written in form of sequences in a file. 
 #              The CRF trainer module will read this file and generate feature functions by appending indicator functions fot the output tokens. 
 
@@ -29,6 +29,9 @@ no_of_pauses = function(seq, position, labels, options = NULL) {
     }
     return(pauses)
   }
+  else {
+    stop("lat or lon not found")
+  }
   return(0)
 }
 
@@ -49,7 +52,9 @@ net_distance = function(seq, position, labels, options = NULL) {
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
         d = radius * c
         return(d)
-    }   
+    } else {
+    stop("lat or lon not found")
+  }   
 }
 
 # finds average speed
@@ -58,12 +63,26 @@ average_speed = function(seq, position, labels, options = NULL) {
         avg = mean(seq$speed)
         return (avg)
     }
+    else if ("avgspeed" %in% colnames(seq)) {
+        avg = mean(seq$avgspeed)
+        return (avg)
+    }
+    else {
+        stop("speed/avgspeed not found")
+    }
 }
 
 sd_speed = function(seq, position, labels, options = NULL) {
     if ("speed" %in% colnames(seq)) {
         std_dev = sd(seq$speed)
         return (std_dev)
+    }
+    else if ("avgspeed" %in% colnames(seq)) {
+        std_dev = sd(seq$avgspeed)
+        return (std_dev)
+    }
+    else {
+        stop("speed/avgspeed not found")
     }
 }
 
@@ -77,6 +96,18 @@ coefficient_of_variation = function(seq, position, labels, options = NULL) {
             return (0.0)
         }
     }
+    else if ("avgspeed" %in% colnames(seq)) {
+        std_dev = sd(seq$avgspeed)
+        avg = mean(seq$avgspeed)
+        if (avg > 0) {            
+            return (std_dev*1.0/avg)
+        } else {
+            return (0.0)
+        }
+    }
+    else {
+        stop("speed/avgspeed not found")
+    }
 }
 
 
@@ -86,6 +117,13 @@ total_distance = function(seq, position, labels, options = NULL) {
     if ("distance" %in% colnames(seq)) {
         total = sum(seq$distance)
         return (total)
+    }
+    else if ("netdistance" %in% colnames(seq)) {
+        total = sum(seq$netdistance)
+        return (total)
+    }
+    else {
+        stop("distance/netdistance not found")
     }
 }
 
@@ -100,7 +138,21 @@ net_to_total_distance_ratio = function(seq, position, labels, options = NULL) {
             ratio = d*1.0/total_distance
         }
         return(ratio)
+    }
+    else if ("netdistance" %in% colnames(seq)) {
+        total_distance = sum(seq$netdistance)
+        d = net_distance(seq, position, labels, options)
+        if(total_distance == 0) {
+            ratio = 0.0
+        }
+        else {
+            ratio = d*1.0/total_distance
+        }
+        return(ratio)
     }    
+    else {
+        stop("distance/netdistance not found")
+    }
 }
 
 
@@ -138,6 +190,9 @@ direction_change_count = function(seq, position, labels, options = NULL) {
             prev_diff_lon = as.numeric(lon1 - lon0)
         }
     } 
+    else {
+        stop("lat or lon not found")
+    }   
     return(count)
 }
 

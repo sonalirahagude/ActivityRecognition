@@ -10,8 +10,8 @@ generate_header = function(feature_list_file, output_feature_file, options) {
     }
 
 	token_count = 0
-	cat("label", "\t", sep="", file=output_feature_file, append=TRUE)		
-	cat("participant", "\t", sep="", file=output_feature_file, append=TRUE)		
+	cat("label", sep="", file=output_feature_file, append=TRUE)		
+	cat('\t', "participant", sep="", file=output_feature_file, append=TRUE)		
 
 	for (feature_function in feature_functions) {		
 		# ignore comments in the feature list file
@@ -19,16 +19,16 @@ generate_header = function(feature_list_file, output_feature_file, options) {
 			next
 		else if(feature_function == "plain_features") {
 			plain_features_list = get_plain_features_header(options)
-			cat(plain_features_list, sep="", file=output_file, append=TRUE)		
+			cat('\t', plain_features_list, sep="", file=output_file, append=TRUE)		
 			token_count = token_count + length(plain_features_list)
 		}
 		else if(feature_function == "difference_features") {
 			diff_features_list = get_diff_features_header(options)
-			cat(diff_features_list, sep="", file=output_file, append=TRUE)		
+			cat('\t', diff_features_list, sep="", file=output_file, append=TRUE)		
 			token_count = token_count + length(diff_features_list)
 		}
 		else {
-			cat(feature_function, "\t", sep="", file=output_file, append=TRUE)	
+			cat('\t', feature_function, sep="", file=output_file, append=TRUE)	
 			token_count = token_count + 1
 		}
 	}
@@ -41,11 +41,17 @@ get_plain_features_header  = function(options) {
 	conn = file(plain_features_file, open = 'r')
     plain_features = readLines(conn) 
    	plain_features_list = ""
+   	is_first = TRUE
     for (plain_feature in plain_features) {
     	# ignore comments in the feature list file
 		if (startsWith(plain_feature, '#', trim=TRUE) | trim(plain_feature) == '')
 			next
-    	plain_features_list = paste0(plain_features_list,plain_feature,"\t")
+		if (plain_features_list == "") {
+			plain_features_list = paste0(plain_features_list,plain_feature)
+		}
+		else {
+    		plain_features_list = paste0(plain_features_list, "\t", plain_feature)
+    	}
 	}
 	return (plain_features_list)
 }
@@ -66,7 +72,12 @@ get_diff_features_header  = function(options) {
 			next
 		for (i in 1:no_of_steps) {
 			feature_name  = paste0(diff_feature,'_',i)
-			diff_features_list = paste0(diff_features_list,feature_name,"\t")
+			if (diff_features_list == "") {
+				diff_features_list = paste0(diff_features_list,feature_name)
+			}
+			else {
+				diff_features_list = paste0(diff_features_list, "\t", feature_name)
+			}
 		}
 	}
 	return (diff_features_list)

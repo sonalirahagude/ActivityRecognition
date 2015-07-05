@@ -10,7 +10,17 @@ distance
 ele
 elevationDelta
 
+# use these if using Kat's processed files
+#avgspeed
+#netdistance
+#avgele
+#elechange
+#nsat
+#snr
+
+
 timestamp
+
 # Accelerometer related features
 mean
 sd

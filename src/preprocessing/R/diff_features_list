@@ -1,6 +1,14 @@
-#this file contains the attributes whose differences should be added as features to the CRF
+# This file contains the attributes whose differences should be added as features to the CRF
+
 lat
 lon
 speed
 distance
 elevationDelta
+
+# use these if using Kat's processed files
+#avgspeed
+#netdistance
+#avgele
+#elechange
+

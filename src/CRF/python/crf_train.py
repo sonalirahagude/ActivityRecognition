@@ -26,44 +26,44 @@ def get_feature_index_list(line, feature_inclusion_list) :
             feature_index_list.append(i)
     return feature_index_list
 
-def get_min_max_scaling_values (crf_input_file, feature_inclusion_list):
-    f = open(crf_input_file, 'r')
-    feature_index_list = []
-    header = []
-    for line in f:      
-        if "label" in line:
-            feature_index_list = get_feature_index_list(line, feature_inclusion_list)
-            header = line.split('\t')
-            min_max = pd.DataFrame(data= np.zeros([len(header),2],dtype=float), index = header, columns = ['min','max'])
-            min_max['min'] = 99999.0
-            min_max['max'] = -99999.0
-            continue  
-        if "START" in line:
-            continue
-        if "END" in line:
-            continue
-        else:
-            fields = line.split('\t')
-            for i in range(0,len(fields)):
-                #if i in feature_index_list:
-                    # print header[i]
-                    # print fields[i]
-                attribute_name = header[i]
-                if(fields[i] == 'NA'):
-                    continue
-                else:
-                    try:
-                        attribute_val = float(fields[i])
-                    except ValueError:
-                        #print 'Skipping ' + fields[i]
-                        continue
-                if(min_max['min'][attribute_name] > attribute_val ):
-                    min_max['min'][attribute_name] = attribute_val 
-                if(min_max['max'][attribute_name] < attribute_val ):
-                    min_max['max'][attribute_name] = attribute_val 
-    print min_max
-    min_max.save('min_max_dataframe')
-    return min_max
+# def get_min_max_scaling_values (crf_input_file, feature_inclusion_list):
+#     f = open(crf_input_file, 'r')
+#     feature_index_list = []
+#     header = []
+#     for line in f:      
+#         if "label" in line:
+#             feature_index_list = get_feature_index_list(line, feature_inclusion_list)
+#             header = line.split('\t')
+#             min_max = pd.DataFrame(data= np.zeros([len(header),2],dtype=float), index = header, columns = ['min','max'])
+#             min_max['min'] = 99999.0
+#             min_max['max'] = -99999.0
+#             continue  
+#         if "START" in line:
+#             continue
+#         if "END" in line:
+#             continue
+#         else:
+#             fields = line.split('\t')
+#             for i in range(0,len(fields)):
+#                 #if i in feature_index_list:
+#                     # print header[i]
+#                     # print fields[i]
+#                 attribute_name = header[i]
+#                 if(fields[i] == 'NA'):
+#                     continue
+#                 else:
+#                     try:
+#                         attribute_val = float(fields[i])
+#                     except ValueError:
+#                         #print 'Skipping ' + fields[i]
+#                         continue
+#                 if(min_max['min'][attribute_name] > attribute_val ):
+#                     min_max['min'][attribute_name] = attribute_val 
+#                 if(min_max['max'][attribute_name] < attribute_val ):
+#                     min_max['max'][attribute_name] = attribute_val 
+#     print min_max
+#     min_max.save('min_max_dataframe')
+#     return min_max
 
 """
 Convert the file into an object compatible with crfsuite Python module.
@@ -71,17 +71,21 @@ Every line in the crf input file consists of features for a particular token in 
 <token label> \t <token attribute1 name: tokan attribute1 value> \t <token attribute2 name: tokan attribute2 value> ....
 """
 def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, participant_list):    
-    if os.path.isfile('min_max_dataframe'):
-        min_max = pd.load('min_max_dataframe')
-    else:
-        min_max = get_min_max_scaling_values (crf_input_file, feature_inclusion_list)
+    # if os.path.isfile('min_max_dataframe'):
+    #   min_max = pd.load('min_max_dataframe')
+    # else:
+    #   min_max = get_min_max_scaling_values (crf_input_file, feature_inclusion_list)
+    #min_max = get_min_max_scaling_values (crf_input_file, feature_inclusion_list)
     import crfsuite
     f = open(crf_input_file, 'r')
     feature_index_list = []
     header = []
     xseq = crfsuite.ItemSequence()
     yseq = crfsuite.StringList()
-    for line in f:      
+    for line in f:     
+        # ignore blank lines
+        if line.strip(' \t\n\r')=="":
+            continue
         if "label" in line:
             feature_index_list = get_feature_index_list(line, feature_inclusion_list)
             header = line.split('\t')
@@ -89,7 +93,8 @@ def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, p
         if "START" in line:
             continue
         if "END" in line:
-            print participant_group
+            if participant not in participant_list:
+                continue
             crf_trainer.append(xseq, yseq,participant_group)   
             xseq = crfsuite.ItemSequence()
             yseq = crfsuite.StringList()
@@ -97,26 +102,18 @@ def read_file_to_crfsuite(crf_input_file, crf_trainer, feature_inclusion_list, p
             item = crfsuite.Item()
             fields = line.split('\t')
             participant = fields[1]
+            if participant not in participant_list:
+                continue
             participant_group = participant_list.index(participant)
             for i in range(0,len(fields)):
                 if i in feature_index_list:
-                    # print header[i]
-                    # print fields[i]
                     attribute_name = header[i]
                     if(fields[i] == 'NA'):
                         attribute_val = 0
                     else:
-                        #attribute_val = float(fields[i]) 
-                        denom = min_max['max'][attribute_name] - min_max['min'][attribute_name]
-                        if min_max['max'][attribute_name] == min_max['min'][attribute_name]:
-                            attribute_val = 1
-                        else: 
-                            attribute_val = (float(fields[i]) - min_max['min'][attribute_name] )/ denom
-                        #print attribute_name + ", " + str(attribute_val)
+                        attribute_val = float(fields[i])                    
                     item.append(crfsuite.Attribute(attribute_name, attribute_val))
-            xseq.append(item)
-            #print xseq.items()
-            #print fields[0]
+            xseq.append(item)            
             yseq.append(fields[0])
 
 
@@ -184,19 +181,20 @@ def crf_train(crf_train_file,feature_list_file,crf_model_file,excluded_participa
 
 
 
-def leave_one_out(crf_train_file,feature_list_file,participant_list, test_participant_list, options_dict):
+def leave_one_out(crf_train_file, feature_list_file, participant_list, test_participant_list, options_dict):
     reg_constants = options_dict['reg_constants']
     periods = options_dict['periods']
+    
+    feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
+    print feature_inclusion_list
+    
+    trainer = Trainer()
+    print 'Reading from file: ' + crf_train_file
+    read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,participant_list)
     
     output_name = 'test/accuracies/grid_search' + feature_list_file
     output = open(output_name, 'a')
     output.write('period, reg_constant,avg_acc\n')
-    trainer = Trainer()
-    
-    feature_inclusion_list = get_feature_inclusion_list(feature_list_file)
-    print feature_inclusion_list
-    read_file_to_crfsuite(crf_train_file, trainer, feature_inclusion_list,participant_list)
-    print 'read from file'
     
     for period in periods:
         for reg_constant in reg_constants:
@@ -217,12 +215,12 @@ def leave_one_out(crf_train_file,feature_list_file,participant_list, test_partic
             participant_details_file_name  = 'test/accuracies/' + feature_list_file + '_Acc_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant'
             participant_details_file = open(participant_details_file_name,'a')
             participant_details_file.write('participant,accuracy\n')
+
             for excluded_participant in test_participant_list :
                 crf_model_file = 'test/results/crf_all_model_' + excluded_participant + '_excluded' + str(period) + '_period_' + str(reg_constant) + '_reg_constant_'  + feature_list_file
 
                 excluded_participant_group = test_participant_list.index(excluded_participant)
                 trainer.train(crf_model_file, excluded_participant_group)            
-                
                 participant_file= crf_train_file  +'_' + excluded_participant 
                 output_prediction_file='test/results/results_AllTrain'+ excluded_participant + 'Test_' + str(period) + '_period_' + str(reg_constant) + '_reg_constant_'  + feature_list_file
                 crf_tag.crf_tag(crf_model_file, participant_file, feature_list_file, output_prediction_file)

@@ -17,19 +17,19 @@ def read_file_to_crfsuite(crf_input_file, feature_inclusion_list, crf_tagger, ou
     xseq = crfsuite.ItemSequence()
     yseq = crfsuite.StringList()
     for line in f:        
-        if "label" in line:            
+        if line.strip(' \t\n\r')=="":
+            continue
+        if "label" in line:
             feature_index_list = crf_train.get_feature_index_list(line, feature_inclusion_list)
             header = line.split('\t')
-            continue
+            continue  
         if "START" in line:
-            continue
+            continue        
         if "END" in line:
             #crf_tagger.set(xseq)    
             y_itr = yseq.iterator()
             for prediction in crf_tagger.tag(xseq):
-                label = y_itr.next()
-                #print "prediction: " + prediction
-                #print "label: " + label
+                label = y_itr.next()   
                 output.write(prediction.strip() + "," + label.strip()+"\n")
                 #print prediction.strip() + "," + label.strip()
             xseq = crfsuite.ItemSequence()
@@ -39,24 +39,14 @@ def read_file_to_crfsuite(crf_input_file, feature_inclusion_list, crf_tagger, ou
             fields = line.split('\t')
             for i in range(0,len(fields)):
                 if i in feature_index_list:
-                    # print header[i]
-                    # print fields[i]
                     attribute_name = header[i]
                     if(fields[i] == 'NA'):
                         attribute_val = 0
                     else:
-                        #attribute_val = float(fields[i]) 
-                        denom = min_max['max'][attribute_name] - min_max['min'][attribute_name]
-                        if denom == 0:
-                            attribute_val = 0
-                        else: 
-                            attribute_val = (float(fields[i]) - min_max['min'][attribute_name] )/ denom
-                        #print attribute_val
-                    item.append(crfsuite.Attribute(attribute_name, attribute_val))            
-            xseq.append(item)
-            #print xseq.items()
+                        attribute_val = float(fields[i])                    
+                    item.append(crfsuite.Attribute(attribute_name, attribute_val))
+            xseq.append(item)            
             yseq.append(fields[0])
-
 
 
 def crf_tag(crf_model_file, crf_test_file, feature_list_file, output_file):

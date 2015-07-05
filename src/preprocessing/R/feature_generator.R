@@ -27,37 +27,22 @@ generate_features= function( feature_list_file, output_file_name, options, seque
 	for(i in 1:nrow(sequence)) {
 		label = labels[i]
 		participant = participants[i]
-		# if(participant != first_participant ) {
-		# 	cat("not equal\n")
-		# 	cat("participant:-", participant, ", first_participant:-", first_participant,"----\n")
-		# 	cat('#END\n', file=participant_output_file, append=TRUE)
-		# 	participant_output_file_name = paste0(output_file_name,"_", participant)
-		# 	cat("ending participant file: ", participant_output_file_name,", i:",i,"\n")
-		# 	first_participant = participant
-		# 	participant_output_file = file.path(participant_output_file_name)
-		# 	if(participant_output_file_name %in% participant_file_list) {		
-		# 	} else {
-		# 		participant_file_list = append(participant_file_list, participant_output_file_name)
-		# 		generate_header(feature_list_file, participant_output_file_name, options)
-		# 	}
-		# 	cat('#START\n', file=participant_output_file, append=TRUE)	
-		# }
 		
-		cat(label,'\t', sep="", file=output_file, append=TRUE)	
-		cat(label,'\t', sep="", file=participant_output_file, append=TRUE)	
+		cat(label, sep="", file=output_file, append=TRUE)	
+		cat(label, sep="", file=participant_output_file, append=TRUE)	
 		
-		cat(participant,'\t', sep="", file=output_file, append=TRUE)	
-		cat(participant,'\t', sep="", file=participant_output_file, append=TRUE)				
+		cat('\t', participant, sep="", file=output_file, append=TRUE)	
+		cat('\t', participant, sep="", file=participant_output_file, append=TRUE)				
 
 		for(feature_function in feature_functions) {
 			# ignore comments in the feature list file
 			if (startsWith(feature_function, '#', trim=TRUE) | trim(feature_function) == '')
 				next
-			#cat("Calling " , feature_function,"\n")
 			feature_value = do.call(feature_function, list(sequence, i, labels, options))
+
 			# write the returned feature value to output file			
-			cat(feature_value, "\t", sep="", file=output_file, append=TRUE)		
-			cat(feature_value, "\t", sep="", file=participant_output_file, append=TRUE)		
+			cat('\t', feature_value, sep="", file=output_file, append=TRUE)		
+			cat('\t', feature_value, sep="", file=participant_output_file, append=TRUE)		
 
 		}
 		cat('\n', file=output_file, append=TRUE)			
@@ -72,19 +57,18 @@ generate_features= function( feature_list_file, output_file_name, options, seque
 
 # Generates and writes CRF compliant features to a file
 # Arguments:
-## feature_dirs: list of directories that contain the original/raw observation files at desired window_size rate 
+## sensor_data_dirs: list of directories that contain the original/raw observation files at desired interval_length_in_sec rate 
 ## feature_list_file: contains list of names of feature functions to be used to generate features
-## output_feature_file: file to write the CRF compliant features to, will contain the original features at window_size rate <label, feature1, feature2,...featuren>
+## output_crf_file: file to write the CRF compliant features to, will contain the original features at interval_length_in_sec rate <label, feature1, feature2,...featuren>
 ## crf_sequence_length: length of a CRF sequence
-## overlap_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
-generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_list_file, output_feature_file, crf_sequence_length = 10, 
-		overlap_window_length = 0, window_size =15, options ) {
-	for(feature_dir in feature_dirs) {
-		if(!file.exists(feature_dir)) {
-			stop("Feature directory not found: " , feature_dir)
+## sliding_window_length: if using sliding window to generate sequences, tells how many time steps to overlap between two consecutive windows
+generate_sequences_from_raw_data = function( sensor_data_dirs, label_dir, feature_list_file, crf_sequence_length = 10, 
+		sliding_window_length = 0, interval_length_in_sec =15, options ) {
+	for(sensor_dir in sensor_data_dirs) {
+		if(!file.exists(sensor_dir)) {
+			stop("Feature directory not found: " , sensor_dir)
 		}
 	}
-
 	if(!file.exists(label_dir)) {
 		stop("Labels directory not found")
 	}
@@ -92,93 +76,31 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 		stop("Feature functions list not found")
 	}
 
-	if (file.exists( file.path(output_feature_file) )) {
-      file.remove(output_feature_file)
-    }
-	generate_header(feature_list_file, output_feature_file, options) 
-
-	plain_features = data.frame()
-	for(feature_dir in feature_dirs) { 
-		if(file.info(feature_dir)$isdir) {
-			cat("Exracting features from directory: " , feature_dir, "\n")
-			features = read_from_dir(feature_dir)
-		}
-		else {
-			cat("Exracting features from file: " , feature_dir, "\n")
-			features = read_from_file(feature_dir,window_size)
-		}
-		if(nrow(plain_features) == 0) {
-			plain_features = features
-		}
-		else {
-			# make the date formate same 
-			#print(t(plain_features[1, ]$timestamp))	
-			date_format = get_date_format(toString(plain_features[1, ]$timestamp))
-			plain_features$timestamp = strptime(plain_features$timestamp, date_format)
-			features$timestamp = strptime(features$timestamp, date_format)
-
-			if("participant" %in% colnames(plain_features) & "participant" %in% colnames(features) ) {
-				plain_features = merge (plain_features, features,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
-			}
-			else {
-				plain_features = merge (plain_features, features,  by.x=c("timestamp"), by.y=c("timestamp"), all=FALSE, sort=FALSE)	
-			}
-		}		
-	}
-	if(nrow(plain_features) == 0) {
-		stop("Feature merge failed. Please check the feature directories.", feature_dirs)
-	}
-	if(file.info(label_dir)$isdir) {
-		aligned_labels_dir = paste0(label_dir, "_",window_size,"_aligned")
-		if (!file.exists(aligned_labels_dir)) {
-			align_labels(label_dir, aligned_labels_dir, window_size)
-		}
-		labels = read_from_dir(aligned_labels_dir)
-	}
-	else {
-		labels = read_from_file(label_dir)
-	}
-
-	#---------------------
-	#date_format = get_date_format(plain_features[1, ]$dateTime)
-	# make the date formate same 
-	date_format = get_date_format(toString(plain_features[1, ]$timestamp))
-	#---------------------
-	# first format the labels timestamp in the same format as features so that we can merge on the timestamp
-	labels$timestamp = strptime(labels$timestamp, date_format)
-
-	#---------------------
-	#plain_features$dateTime = strptime(plain_features$dateTime, date_format)
-	#plain_features = merge (plain_features, labels,  by.x=c("participant","dateTime"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
+	output_crf_file = create_crf_dir(feature_list_file, crf_sequence_length, sliding_window_length, interval_length_in_sec, options)
 	
-	plain_features$timestamp = strptime(plain_features$timestamp, date_format)
-	if("participant" %in% colnames(plain_features) & "participant" %in% colnames(labels) ) {
-		plain_features = merge (plain_features, labels,  by.x=c("participant","timestamp"), by.y=c("participant","timestamp"), all=FALSE, sort=FALSE)
-	}
-	else {
-		plain_features = merge (plain_features, labels,  by.x=c("timestamp"), by.y=c("timestamp"), all=FALSE, sort=FALSE)	
-	}
-	#---------------------
-	# discard training points for whom the corresponding labels are unavailable
-	plain_features = plain_features[plain_features$behavior!="NULL", ]
+	all_sensor_data = load_sensor_data(sensor_data_dirs, interval_length_in_sec)
+
+	labels = load_labels(label_dir, interval_length_in_sec)
+
+	all_sensor_data = merge_data_and_labels(all_sensor_data, labels)
+	
 	participant_file_list = list()
 	# The below logic detects if 2 consecutive data points are non contiguous in time,
 	# if so, it starts a new CRF sequence for the later data point, with no overlap.
 	i = 1
-	participant = toString(plain_features[1, ]$participant)
-	while(i <= nrow(plain_features) ) {
+	participant = toString(all_sensor_data[1, ]$participant)
+	gap_threshold_for_seq_cutoff = options[['gap_threshold_for_seq_cutoff']]
+	
+	while(i <= nrow(all_sensor_data) ) {
 		max_seq_end = i + crf_sequence_length - 1
-		if(max_seq_end > nrow(plain_features)) {
-			max_seq_end = nrow(plain_features)
+		if(max_seq_end > nrow(all_sensor_data)) {
+			max_seq_end = nrow(all_sensor_data)
 		}
-		participant = toString(plain_features[i, ]$participant)
+		participant = toString(all_sensor_data[i, ]$participant)
 		seq_end = i
 		while(seq_end < max_seq_end) {
-			cur_participant = toString(plain_features[seq_end+1, ]$participant)
-			#---------------------
-			#if(is_immediate_data_point(plain_features[seq_end, ]$dateTime, plain_features[seq_end + 1, ]$dateTime, date_format, window_size) )  {
-			if(is_immediate_data_point(plain_features[seq_end, ]$timestamp, plain_features[seq_end + 1, ]$timestamp, date_format, 60)  && cur_participant == participant)  {
-			#---------------------
+			cur_participant = toString(all_sensor_data[seq_end+1, ]$participant)
+			if(is_immediate_data_point(all_sensor_data[seq_end, ]$timestamp, all_sensor_data[seq_end + 1, ]$timestamp, date_format, gap_threshold_for_seq_cutoff)  && cur_participant == participant)  {
 				seq_end = seq_end + 1
 				participant = cur_participant
 
@@ -186,11 +108,11 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 				break
 			}
 		}
-		participant_file_list = generate_features(feature_list_file, output_feature_file, options, plain_features[i:seq_end,] , participant_file_list)
+		participant_file_list = generate_features(feature_list_file, output_crf_file, options, all_sensor_data[i:seq_end,] , participant_file_list)
 		# While incrementing i, if there was no cut off, then we can overlap the next sequence with tokens from the previous sequence,
 		# else we have to start a fresh new sequence with no overlap
 		if( seq_end == max_seq_end) {			
-			i = i + crf_sequence_length - overlap_window_length
+			i = i + crf_sequence_length - sliding_window_length
 		}
 		else {
 			i = seq_end + 1
@@ -198,98 +120,9 @@ generate_sequences_from_raw_data = function( feature_dirs, label_dir, feature_li
 	}
 }
 
-# Reads the features into a single dataframe
-# assumes that the directory structure is: dir -> participant_dir -> date-file
-read_from_dir = function(dir, names = NULL) {
-	if (is.null(names)) {
-		names = list.files(dir)
-	}
-	if (length(names) == 0) {
-		cat("Could not find files in directory: " , dir,". Either the directory is empty or it does not exist.\n")
-		return(NULL)
-	}
-	all_feats = data.frame()
-	for (i in 1:length(names)) {
-		days = list.files(file.path(dir, names[i]))
-    	# if the participant directory is empty, skip this
-    	if (length(days) == 0) {
-    		next
-    	}
-    	for (k in 1:length(days)) {
-    		file = file.path(dir, names[i], days[k])
-    		# Set check.names=FALSE, else strings starting with numbers in the header will be read as 25thp -- X25thp
-    		feats = read.csv(file, header=TRUE,sep = ",", stringsAsFactors=FALSE, check.names=FALSE, strip.white=TRUE)
-    		# add the participant name so that it can be used during merging
-    		feats[,'participant'] = rep(names[i], times = nrow(feats))    		
-    		if("dateTime" %in% colnames(feats)) {
-				feats = rename(feats,c("dateTime"="timestamp"))
-			}		
-			all_feats = rbind(all_feats, feats)    		
-    	}
-	}
-	return(all_feats)
-}
-
-
-read_from_file = function (file, window_size=15) {
-	feats = read.csv(file, header=TRUE,sep = ",", stringsAsFactors=FALSE, check.names=FALSE, strip.white=TRUE)
-	t1 = strptime(feats[1, c("dateTime")], "%Y-%m-%d %H:%M:%S")
-    t2 = strptime(feats[2, c("dateTime")], "%Y-%m-%d %H:%M:%S")
-    
-    sample_rate = as.numeric(t2 - t1)
-    ws = window_size / sample_rate
-    if (ws != 1) {
-    	feats = aggregate_features(feats,ws)
-    }
-
-
-	if("identifier" %in% colnames(feats)) {
-		feats = rename(feats,c("identifier"="participant"))
-	}
-	if("dateTime" %in% colnames(feats)) {
-		feats = rename(feats,c("dateTime"="timestamp"))
-	}
-	return (feats)
-}
-
-
-# right now it is hardcoded to aggregate GPS features only
-aggregate_features = function(feats, ws){ 
-	headers = colnames(feats)
-	feats_new = data.frame(matrix(ncol=length(headers),nrow=0))
-	colnames(feats_new) = headers
-	excluded_features_to_aggregate = c("identifier","dateTime","fixType")
-	feats_to_aggregate = headers[!headers %in% excluded_features_to_aggregate]
- 
-    r = 1
-    single_aggregate = array(0, dim = c(1,length(headers)))
-    colnames(single_aggregate) = headers
-
-    while ((r + ws - 1) <= nrow(feats)) {
-    	single_aggregate[1,feats_to_aggregate] = colMeans(feats[r:(r + ws - 1),feats_to_aggregate])
- 
-    	for (feature in excluded_features_to_aggregate) {
-    		single_aggregate[1,feature] = feats[r,feature]
-    	}
-    	
-    	feats_new = rbind(feats_new,single_aggregate)
-      	r = r + ws
-      	print(r)
-    }
-    file_name =  "Aggregate_GPS_" + toString(ws) 
-    write.csv(feats_new, file = file_name, row.names = FALSE)
-    return(feats_new)
-}
-
-
 # Checks if two data points contiguous in the input file are contiguous in time too
 is_immediate_data_point = function (prev_timestamp, cur_timestamp, date_format, gap_threshold) {
-	#if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") )== window_size) {
-	# print(prev_timestamp)
-	# print(cur_timestamp)
-	# print(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs")))
-	# print('----------------------------')
-	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") ) < gap_threshold) {
+	if(as.numeric(difftime(cur_timestamp, prev_timestamp, units="secs") ) <= gap_threshold) {
 		return(TRUE)
 	} 
 	return(FALSE)

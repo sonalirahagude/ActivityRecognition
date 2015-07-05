@@ -12,3 +12,6 @@ source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/feature_functio
 source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/feature_generator.R')
 source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/align_data.R')
 source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/header_util.R')
+source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/name_util.R')
+source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/data_loader.R')
+source('/home/sonali/git/ActivityRecognition/src/preprocessing/R/scale_features.R')
