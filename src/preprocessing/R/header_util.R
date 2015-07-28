@@ -6,7 +6,7 @@ generate_header = function(feature_list_file, output_feature_file, options) {
 	feature_functions = readLines(conn)	
 	output_file = file.path(output_feature_file)
 	if (file.exists( output_file )) {
-      file.remove(output_file)
+      stop(output_file, "already exists")
     }
 
 	token_count = 0

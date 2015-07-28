@@ -111,7 +111,6 @@ align_start = function(win_size, start) {
   d0 = trunc(start, "days")
   s = as.numeric(difftime(start, d0, units="secs"))
   w = ceiling(s / win_size)
-  cat("----------",w,"---winSize: ", win_size, "\n")
   newStart = as.POSIXlt(d0 + w * win_size)
   return(newStart)
 }

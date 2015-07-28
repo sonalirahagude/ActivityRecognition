@@ -6,15 +6,13 @@ import find_accuracy
 
 #split_rule = '70-30'
 split_rule = '80-20'
-reg_constant = 0.1
+reg_constant = 0.001
 period = 5
 feature_file = 'feature_list_all_sequence_wide_only'
 
 options_dict = {'reg_constant': str(reg_constant), 'period': str(period)}
 
 misc = 'seqlen_15_l2_'+ split_rule + '_' + str(reg_constant) + '_lbfgs_period_'+ str(period) +'_sequence_wide_only'
-#misc = ""
-train_file = '../../preprocessing/R/test/results/crf_feature_all_15_seqLength_0_overlap'
 
 avg_acc = 0.0
 participant_list=["SDU078","SDU079","SDU080","SDU082","SDU085","SDU086","SDU087","SDU089","SDU090","SDU091","SDU092","SDU093","SDU094","SDU096","SDU097","SDU098",
@@ -29,14 +27,24 @@ model_file = 'test/results/crf_all_model' + misc
 #excluded_participant_list = ["SDU078","SDU079","SDU080","SDU082","SDU085","SDU086","SDU087","SDU089"]
 excluded_participant_list = ["SDU109","SDU111","SDU113","SDU114","SDU115","SDU116","SDU117"] 
 
+
+
+
+
+train_file = '../../preprocessing/R/test/results/15_seqLength_5_overlap_15_sec_interval/scaled_all_SDU078'
+excluded_participant_list = ["SDU078"]
+crf_sequence_length = 15
+sliding_window_length = 5
+options_dict['sliding_window_length'] = sliding_window_length
+options_dict['crf_sequence_length'] = crf_sequence_length
+
 crf_train.crf_train(train_file,feature_file,model_file, excluded_participant_list,options_dict)
 
-
 for excluded_participant in excluded_participant_list:
-	participant_file='../../preprocessing/R/test/results/exhaustive_15_seqLength_0_overlap/crf_feature_all_15_seqLength_0_overlap_' + excluded_participant
+	participant_file='../../preprocessing/R/test/results/15_seqLength_5_overlap_15_sec_interval/scaled_all_' + excluded_participant
 	output_prediction_file='test/results/results_AllTrain_subset_'+ excluded_participant + 'Test' + misc
 	
-	crf_tag.crf_tag(model_file, participant_file, feature_file, output_prediction_file)
+	crf_tag.crf_tag(model_file, participant_file, feature_file, output_prediction_file, options_dict)
 	
 	acc  = find_accuracy.find_accuracy (output_prediction_file)
 	print excluded_participant + ": " + str(acc)
